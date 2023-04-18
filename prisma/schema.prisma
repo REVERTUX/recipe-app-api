@@ -10,3 +10,89 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Recipe {
+  id               String             @id @default(uuid())
+  title            String
+  description      String
+  image            String
+  creationDate     DateTime           @default(now())
+  cookingTime      CookingTime?
+  servings         Int
+  nutrients        Nutrients?
+  rating           Float?
+  calories         Float
+  steps            RecipeStep[]
+  reviews          Review[]
+  recipeIngredient RecipeIngredient[]
+  categories       RecipeCategory[]
+}
+
+model Review {
+  id           String   @id @default(uuid())
+  user         String
+  rating       Float
+  comment      String
+  creationDate DateTime @default(now())
+  recipe       Recipe   @relation(fields: [recipeId], references: [id])
+  recipeId     String
+}
+
+model CookingTime {
+  value    Float
+  unit     String
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
+  recipeId String @unique
+}
+
+model Ingredient {
+  name             String             @id
+  RecipeIngredient RecipeIngredient[]
+}
+
+model IngredientUnit {
+  name             String             @id
+  RecipeIngredient RecipeIngredient[]
+}
+
+model Category {
+  name           String           @id
+  RecipeCategory RecipeCategory[]
+}
+
+model RecipeCategory {
+  id           String   @id @default(uuid())
+  category     Category @relation(fields: [categoryName], references: [name])
+  recipe       Recipe   @relation(fields: [recipeId], references: [id])
+  recipeId     String
+  categoryName String
+}
+
+model RecipeIngredient {
+  id                 String         @id @default(uuid())
+  ingredient         Ingredient     @relation(fields: [ingredientName], references: [name])
+  amount             Float
+  unit               IngredientUnit @relation(fields: [ingredientUnitName], references: [name])
+  recipe             Recipe         @relation(fields: [recipeId], references: [id])
+  recipeId           String
+  ingredientUnitName String
+  ingredientName     String
+}
+
+model Nutrients {
+  id       String @id @default(uuid())
+  fat      Float
+  protein  Float
+  carbs    Float
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
+  recipeId String @unique
+}
+
+model RecipeStep {
+  id       String @id @default(uuid())
+  step     String
+  order    Int
+  Recipe   Recipe @relation(fields: [recipeId], references: [id])
+  recipeId String
+
+  @@unique([recipeId, order])
+}
