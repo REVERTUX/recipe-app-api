@@ -4,6 +4,7 @@ import {
   IsNumber,
   ValidateNested,
   IsUUID,
+  IsOptional,
 } from 'class-validator';
 
 export class CreateRecipeDto {
@@ -90,6 +91,10 @@ export class RecipeIngredientDto {
 
   @IsNumber()
   amount: number;
+
+  @IsOptional()
+  @IsString()
+  description: string | undefined;
 
   @IsUUID()
   recipeId: string;

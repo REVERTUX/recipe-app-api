@@ -74,6 +74,7 @@ model RecipeIngredient {
   unit               IngredientUnit @relation(fields: [ingredientUnitName], references: [name])
   recipe             Recipe         @relation(fields: [recipeId], references: [id])
   recipeId           String
+  description        String?
   ingredientUnitName String
   ingredientName     String
 }

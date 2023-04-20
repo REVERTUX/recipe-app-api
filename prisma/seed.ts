@@ -24,7 +24,19 @@ const nutrients = {
   carbs: 70,
 };
 
-const ingredientUnits = ['pound', 'cup', 'clove', 'tbsp', 'to taste'];
+const ingredientUnits = [
+  'pound',
+  'cup',
+  'clove',
+  'to taste',
+  'g',
+  'kg',
+  'ml',
+  'l',
+  'piece',
+  'tbsp',
+  'teaspoon',
+];
 const ingredients = [
   'pasta',
   'pesto sauce',
@@ -41,7 +53,12 @@ const recipeIngredients = [
   { name: 'parmesan cheese', amount: 0.5, unit: 'cup' },
   { name: 'cherry tomatoes', amount: 1, unit: 'cup' },
   { name: 'garlic', amount: 2, unit: 'clove' },
-  { name: 'olive oil', amount: 2, unit: 'tbsp' },
+  {
+    name: 'olive oil',
+    amount: 2,
+    unit: 'tbsp',
+    description: 'May be vegetable oil',
+  },
   { name: 'salt and pepper', amount: 0, unit: 'to taste' },
 ];
 
