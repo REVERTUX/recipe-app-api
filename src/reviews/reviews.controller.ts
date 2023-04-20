@@ -1,13 +1,13 @@
 import { Controller, Get, Post, Body, Param } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { ReviewsService } from './reviews.service';
+import { CreateReviewDto } from './dto/create-review.dto';
 
 @Controller('reviews')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
   @Post()
-  createReview(@Body() review: Prisma.ReviewCreateInput) {
+  createReview(@Body() review: CreateReviewDto) {
     return this.reviewsService.createReview(review);
   }
 

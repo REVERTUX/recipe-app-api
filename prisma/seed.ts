@@ -95,7 +95,7 @@ async function main() {
       reviews: { createMany: { data: reviews } },
       steps: { createMany: { data: steps } },
       nutrients: { create: { ...nutrients } },
-      recipeIngredient: {
+      ingredients: {
         createMany: {
           data: recipeIngredients.map((e) => ({
             amount: e.amount,

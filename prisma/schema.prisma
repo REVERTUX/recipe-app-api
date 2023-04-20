@@ -11,20 +11,20 @@ datasource db {
 }
 
 model Recipe {
-  id               String             @id @default(uuid())
-  title            String
-  description      String
-  image            String
-  creationDate     DateTime           @default(now())
-  cookingTime      CookingTime?
-  servings         Int
-  nutrients        Nutrients?
-  rating           Float?
-  calories         Float
-  steps            RecipeStep[]
-  reviews          Review[]
-  recipeIngredient RecipeIngredient[]
-  categories       RecipeCategory[]
+  id           String             @id @default(uuid())
+  title        String
+  description  String
+  image        String
+  creationDate DateTime           @default(now())
+  cookingTime  CookingTime?
+  servings     Int
+  nutrients    Nutrients?
+  rating       Float?
+  calories     Float
+  steps        RecipeStep[]
+  reviews      Review[]
+  ingredients  RecipeIngredient[]
+  categories   RecipeCategory[]
 }
 
 model Review {

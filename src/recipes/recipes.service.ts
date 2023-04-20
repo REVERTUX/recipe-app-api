@@ -1,89 +1,30 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, Recipe } from '@prisma/client';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { Recipe } from '@prisma/client';
+
+import { CreateRecipeDto } from './dto/create-recipe.dto';
+import { RecipesRepository } from './recipes.repository';
 
 @Injectable()
 export class RecipesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private repository: RecipesRepository) {}
 
-  async createRecipe(recipe: Prisma.RecipeCreateInput): Promise<Recipe | null> {
-    const {
-      calories,
-      description,
-      image,
-      servings,
-      title,
-      categories,
-      cookingTime,
-      nutrients,
-      recipeIngredient,
-      steps,
-    } = recipe;
-
-    return this.prisma.recipe.create({
-      data: {
-        calories,
-        description,
-        image,
-        servings,
-        title,
-        categories,
-        cookingTime,
-        nutrients,
-        recipeIngredient,
-        steps,
-      },
-    });
-  }
-
-  createSteps(steps: Prisma.RecipeStepCreateInput[], id: string) {
-    return this.prisma.recipeStep.createMany({
-      data: steps.map((e) => ({ ...e, recipeId: id })),
-    });
+  async createRecipe(recipe: CreateRecipeDto): Promise<Recipe | null> {
+    return this.repository.createRecipe({ data: recipe });
   }
 
   getRecipes(): Promise<Recipe[]> {
-    return this.prisma.recipe.findMany();
+    return this.repository.getRecipes({});
   }
 
   getRecipe(id: string): Promise<Recipe | null> {
-    return this.prisma.recipe.findUnique({ where: { id } });
-  }
-
-  updateRecipe(
-    id: string,
-    recipe: Prisma.RecipeUpdateInput,
-  ): Promise<Recipe | null> {
-    const {
-      calories,
-      description,
-      image,
-      servings,
-      title,
-      categories,
-      cookingTime,
-      nutrients,
-      recipeIngredient,
-      steps,
-    } = recipe;
-    return this.prisma.recipe.update({
-      data: {
-        calories,
-        description,
-        image,
-        servings,
-        title,
-        categories,
-        cookingTime,
-        nutrients,
-        recipeIngredient,
-        steps,
-      },
-      where: { id },
-    });
+    return this.repository.getRecipe({ where: { id } });
   }
 
   removeRecipe(id: string): Promise<Recipe | null> {
-    return this.prisma.recipe.delete({ where: { id } });
+    return this.repository.removeRecipe({ where: { id } });
+  }
+
+  updateRecipeRating(id: string, rating: number) {
+    return this.repository.updateRecipeRating(id, rating);
   }
 }
