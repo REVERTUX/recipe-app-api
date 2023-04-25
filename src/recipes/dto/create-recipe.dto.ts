@@ -7,41 +7,6 @@ import {
   IsOptional,
 } from 'class-validator';
 
-export class CreateRecipeDto {
-  @IsString()
-  @IsNotEmpty()
-  title: string;
-
-  @IsString()
-  @IsNotEmpty()
-  description: string;
-
-  @IsString()
-  @IsNotEmpty()
-  image: string;
-
-  @ValidateNested()
-  cookingTime: CookingTimeDto;
-
-  @IsNumber()
-  servings: number;
-
-  @ValidateNested()
-  nutrients: NutrientsDto;
-
-  @IsNumber()
-  calories: number;
-
-  @ValidateNested()
-  steps: CreateRecipeStepDto[];
-
-  @ValidateNested()
-  ingredients: RecipeIngredientDto[];
-
-  @ValidateNested()
-  categories: RecipeCategoryDto[];
-}
-
 export class CookingTimeDto {
   @IsNumber()
   value: number;
@@ -107,4 +72,39 @@ export class RecipeCategoryDto {
 
   @IsUUID()
   recipeId: string;
+}
+
+export class CreateRecipeDto {
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @IsString()
+  @IsNotEmpty()
+  description: string;
+
+  @IsString()
+  @IsNotEmpty()
+  image: string;
+
+  @ValidateNested()
+  cookingTime: CookingTimeDto;
+
+  @IsNumber()
+  servings: number;
+
+  @ValidateNested()
+  nutrients: NutrientsDto;
+
+  @IsNumber()
+  calories: number;
+
+  @ValidateNested()
+  steps: CreateRecipeStepDto[];
+
+  @ValidateNested()
+  ingredients: RecipeIngredientDto[];
+
+  @ValidateNested()
+  categories: RecipeCategoryDto[];
 }
