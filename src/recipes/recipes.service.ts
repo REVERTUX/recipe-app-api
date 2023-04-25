@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Recipe } from '@prisma/client';
+import { Prisma, Recipe } from '@prisma/client';
 
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { RecipesRepository } from './recipes.repository';
+import { RecipeListView } from './entities/recipe.entity';
 
 @Injectable()
 export class RecipesService {
@@ -12,11 +13,17 @@ export class RecipesService {
     return this.repository.createRecipe({ data: recipe });
   }
 
-  getRecipes(): Promise<Recipe[]> {
-    return this.repository.getRecipes({});
+  getRecipes(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.RecipeWhereUniqueInput;
+    where?: Prisma.RecipeWhereInput;
+    orderBy?: Prisma.ReviewOrderByWithRelationInput;
+  }): Promise<{ data: RecipeListView[]; count: number }> {
+    return this.repository.getRecipes(params);
   }
 
-  getRecipe(id: string): Promise<Recipe | null> {
+  getRecipe(id: string): Promise<Recipe> {
     return this.repository.getRecipe({ where: { id } });
   }
 
@@ -26,5 +33,9 @@ export class RecipesService {
 
   updateRecipeRating(id: string, rating: number) {
     return this.repository.updateRecipeRating(id, rating);
+  }
+
+  createIngredient(name: string) {
+    return this.repository.createIngredient(name);
   }
 }

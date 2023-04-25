@@ -3,6 +3,7 @@ import { Prisma, Recipe } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
+import { RecipeListView, RecipeView } from './entities/recipe.entity';
 
 @Injectable()
 export class RecipesRepository {
@@ -50,14 +51,51 @@ export class RecipesRepository {
     cursor?: Prisma.RecipeWhereUniqueInput;
     where?: Prisma.RecipeWhereInput;
     orderBy?: Prisma.ReviewOrderByWithRelationInput;
-  }): Promise<Recipe[]> {
+  }): Promise<{ data: RecipeListView[]; count: number }> {
     const { cursor, orderBy, skip, take, where } = params;
-    return this.prisma.recipe.findMany({ skip, take, cursor, where, orderBy });
+    const data = await this.prisma.recipe.findMany({
+      skip,
+      take,
+      cursor,
+      where,
+      orderBy,
+      include: {
+        categories: {
+          where: { recipeId: where?.id },
+          select: { categoryName: true, id: true },
+        },
+        nutrients: { select: { carbs: true, fat: true, protein: true } },
+        cookingTime: { select: { unit: true, value: true } },
+      },
+    });
+    const count = await this.prisma.recipe.count({ where });
+
+    return { data, count };
   }
 
-  async getRecipe(params: { where: { id: string } }): Promise<Recipe> {
+  async getRecipe(params: { where: { id: string } }): Promise<RecipeView> {
     const { where } = params;
-    return this.prisma.recipe.findUniqueOrThrow({ where });
+    return this.prisma.recipe.findUniqueOrThrow({
+      where,
+      include: {
+        categories: {
+          where: { recipeId: where?.id },
+          select: { categoryName: true, id: true },
+        },
+        nutrients: { select: { carbs: true, fat: true, protein: true } },
+        cookingTime: { select: { unit: true, value: true } },
+        steps: { select: { id: true, order: true, step: true } },
+        ingredients: {
+          select: {
+            id: true,
+            amount: true,
+            ingredientUnitName: true,
+            ingredientName: true,
+            description: true,
+          },
+        },
+      },
+    });
   }
 
   async removeRecipe(params: {
@@ -69,6 +107,10 @@ export class RecipesRepository {
 
   async updateRecipeRating(id: string, rating: number) {
     return this.prisma.recipe.update({ data: { rating }, where: { id } });
+  }
+
+  async createIngredient(name: string) {
+    return this.prisma.ingredient.create({ data: { name } });
   }
 
   //   async createSteps(params: {
