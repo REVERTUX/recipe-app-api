@@ -26,15 +26,19 @@ export class RecipesController {
     @Query('take') take?: number,
     @Query('skip') skip?: number,
   ) {
+    const where = search
+      ? {
+          OR: [
+            { title: { contains: search } },
+            { description: { contains: search } },
+          ],
+        }
+      : {};
+
     return this.recipesService.getRecipes({
-      take,
-      skip,
-      where: {
-        OR: [
-          { title: { contains: search } },
-          { description: { contains: search } },
-        ],
-      },
+      take: Number(take) || 10,
+      skip: Number(skip) || 0,
+      where,
     });
   }
 
