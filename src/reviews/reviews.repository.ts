@@ -17,8 +17,21 @@ export class ReviewsRepository {
     return this.prisma.review.findUniqueOrThrow({ where });
   }
 
-  getReviews(params: { where: Prisma.ReviewWhereInput }): Promise<Review[]> {
-    const { where } = params;
-    return this.prisma.review.findMany({ where });
+  async getReviews(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.ReviewWhereUniqueInput;
+    where?: Prisma.ReviewWhereInput;
+    orderBy?: Prisma.ReviewOrderByWithRelationInput;
+  }): Promise<{ data: Review[]; count: number }> {
+    const { skip, take, where } = params;
+    const data = await this.prisma.review.findMany({
+      where,
+      take,
+      skip,
+      orderBy: { creationDate: 'desc' },
+    });
+    const count = await this.prisma.review.count({ where });
+    return { data, count };
   }
 }

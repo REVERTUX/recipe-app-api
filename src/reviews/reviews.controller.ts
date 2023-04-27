@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 
@@ -12,8 +12,16 @@ export class ReviewsController {
   }
 
   @Get()
-  getReviews(@Param('recipeId') recipeId: string) {
-    return this.reviewsService.getReviews(recipeId);
+  getReviews(
+    @Query('recipeId') recipeId: string,
+    @Query('take') take?: number,
+    @Query('skip') skip?: number,
+  ) {
+    return this.reviewsService.getReviews({
+      take: Number(take) || 10,
+      skip: Number(skip) || 0,
+      where: { recipeId },
+    });
   }
 
   @Get(':id')
