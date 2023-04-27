@@ -18,7 +18,7 @@ export class RecipesService {
     take?: number;
     cursor?: Prisma.RecipeWhereUniqueInput;
     where?: Prisma.RecipeWhereInput;
-    orderBy?: Prisma.ReviewOrderByWithRelationInput;
+    orderBy?: Prisma.RecipeOrderByWithRelationInput;
   }): Promise<{ data: RecipeListView[]; count: number }> {
     return this.repository.getRecipes(params);
   }

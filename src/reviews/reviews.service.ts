@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { RecipesService } from 'src/recipes/recipes.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewsRepository } from './reviews.repository';
-import { Review } from '@prisma/client';
+import { Prisma, Review } from '@prisma/client';
 
 @Injectable()
 export class ReviewsService {
@@ -18,8 +18,14 @@ export class ReviewsService {
     return newReview;
   }
 
-  getReviews(recipeId: string): Promise<Review[]> {
-    return this.repository.getReviews({ where: { recipeId } });
+  getReviews(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.ReviewWhereUniqueInput;
+    where?: Prisma.ReviewWhereInput;
+    orderBy?: Prisma.ReviewOrderByWithRelationInput;
+  }): Promise<{ data: Review[]; count: number }> {
+    return this.repository.getReviews(params);
   }
 
   getReview(id: string): Promise<Review> {
@@ -27,10 +33,13 @@ export class ReviewsService {
   }
 
   async updateRecipeRating(recipeId: string): Promise<void> {
-    const reviews = await this.getReviews(recipeId);
+    const reviews = await this.getReviews({ where: { recipeId } });
 
-    const totalScore = reviews.reduce((sum, review) => sum + review.rating, 0);
-    const averageRating = totalScore / reviews.length;
+    const totalScore = reviews.data.reduce(
+      (sum, { rating }) => sum + rating,
+      0,
+    );
+    const averageRating = totalScore / reviews.count;
 
     await this.recipesService.updateRecipeRating(recipeId, averageRating);
   }
