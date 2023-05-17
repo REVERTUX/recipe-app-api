@@ -10,10 +10,46 @@ import {
 
 import { RecipesService } from './recipes.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
+import { CreateIngredientDto } from './dto/create-ingredient.dto';
+import { CreateCategoryDto } from './dto/create-category.dto';
 
 @Controller('recipes')
 export class RecipesController {
   constructor(private readonly recipesService: RecipesService) {}
+
+  @Get('ingredients')
+  getIngredients(@Query('search') search?: string) {
+    const where = search
+      ? {
+          name: { contains: search },
+        }
+      : {};
+    return this.recipesService.getIngredients({
+      where,
+    });
+  }
+
+  @Post('ingredients')
+  createIngredient(@Body() ingredient: CreateIngredientDto) {
+    return this.recipesService.createIngredient(ingredient.name);
+  }
+
+  @Get('categories')
+  getCategories(@Query('search') search?: string) {
+    const where = search
+      ? {
+          name: { contains: search },
+        }
+      : {};
+    return this.recipesService.getCategories({
+      where,
+    });
+  }
+
+  @Post('categories')
+  createCategory(@Body() category: CreateCategoryDto) {
+    return this.recipesService.createCategory(category.name);
+  }
 
   @Post()
   createRecipe(@Body() recipe: CreateRecipeDto) {
@@ -58,10 +94,5 @@ export class RecipesController {
   @Delete(':id')
   removeRecipe(@Param('id') id: string) {
     return this.recipesService.removeRecipe(id);
-  }
-
-  @Post('categories')
-  createIngredient(@Param('name') name: string) {
-    return this.recipesService.createIngredient(name);
   }
 }

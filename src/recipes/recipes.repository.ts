@@ -40,7 +40,11 @@ export class RecipesRepository {
         cookingTime: { create: { ...cookingTime } },
         nutrients: { create: { ...nutrients } },
         ingredients: { createMany: { data: ingredients } },
-        steps: { createMany: { data: steps } },
+        steps: {
+          createMany: {
+            data: steps.map(({ step }, index) => ({ step, order: index })),
+          },
+        },
       },
     });
   }
@@ -50,7 +54,7 @@ export class RecipesRepository {
     take?: number;
     cursor?: Prisma.RecipeWhereUniqueInput;
     where?: Prisma.RecipeWhereInput;
-    orderBy?: Prisma.ReviewOrderByWithRelationInput;
+    orderBy?: Prisma.RecipeOrderByWithRelationInput;
   }): Promise<{ data: RecipeListView[]; count: number }> {
     const { cursor, orderBy, skip, take, where } = params;
     const data = await this.prisma.recipe.findMany({
@@ -84,7 +88,7 @@ export class RecipesRepository {
         },
         nutrients: { select: { carbs: true, fat: true, protein: true } },
         cookingTime: { select: { unit: true, value: true } },
-        steps: { select: { id: true, order: true, step: true } },
+        steps: { select: { id: true, step: true }, orderBy: { order: 'desc' } },
         ingredients: {
           select: {
             id: true,
@@ -109,16 +113,49 @@ export class RecipesRepository {
     return this.prisma.recipe.update({ data: { rating }, where: { id } });
   }
 
+  async getIngredients(params: {
+    skip?: number;
+    take?: number;
+    where?: Prisma.IngredientWhereInput;
+    orderBy?: Prisma.IngredientOrderByWithRelationInput;
+  }): Promise<{ data: { name: string }[]; count: number }> {
+    const { orderBy, skip, take, where } = params;
+    const data = await this.prisma.ingredient.findMany({
+      skip,
+      take,
+      where,
+      orderBy,
+      select: { name: true },
+    });
+    const count = await this.prisma.ingredient.count({ where });
+
+    return { data, count };
+  }
+
   async createIngredient(name: string) {
     return this.prisma.ingredient.create({ data: { name } });
   }
 
-  //   async createSteps(params: {
-  //     data: CreateRecipeStepDto[];
-  //   }): Promise<RecipeStep[]> {
-  //     const { data } = params;
-  //     return this.prisma.$transaction(
-  //       data.map((step) => this.prisma.recipeStep.create({ data: step })),
-  //     );
-  //   }
+  async getCategories(params: {
+    skip?: number;
+    take?: number;
+    where?: Prisma.CategoryWhereInput;
+    orderBy?: Prisma.CategoryOrderByWithRelationInput;
+  }): Promise<{ data: { name: string }[]; count: number }> {
+    const { orderBy, skip, take, where } = params;
+    const data = await this.prisma.category.findMany({
+      skip,
+      take,
+      where,
+      orderBy,
+      select: { name: true },
+    });
+    const count = await this.prisma.ingredient.count({ where });
+
+    return { data, count };
+  }
+
+  async createCategory(name: string) {
+    return this.prisma.category.create({ data: { name } });
+  }
 }
