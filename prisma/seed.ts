@@ -97,12 +97,15 @@ const steps = [
 async function main() {
   const categories1 = prisma.category.createMany({
     data: categories.map((e) => ({ name: e })),
+    skipDuplicates: true,
   });
   const ingredients1 = prisma.ingredient.createMany({
     data: ingredients.map((e) => ({ name: e })),
+    skipDuplicates: true,
   });
   const ingredientUnits1 = prisma.ingredientUnit.createMany({
     data: ingredientUnits.map((e) => ({ name: e })),
+    skipDuplicates: true,
   });
 
   // create dummy recipe

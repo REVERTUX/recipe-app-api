@@ -32,7 +32,7 @@ const recipeView = Prisma.validator<Prisma.RecipeArgs>()({
     },
     nutrients: { select: { carbs: true, fat: true, protein: true } },
     cookingTime: { select: { unit: true, value: true } },
-    steps: { select: { id: true, order: true, step: true } },
+    steps: { select: { id: true, step: true } },
     ingredients: {
       select: {
         id: true,
