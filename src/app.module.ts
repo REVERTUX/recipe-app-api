@@ -8,10 +8,12 @@ import { PrismaModule } from './prisma/prisma.module';
 import { RecipesModule } from './recipes/recipes.module';
 import { ReviewsController } from './reviews/reviews.controller';
 import { ReviewsService } from './reviews/reviews.service';
+import { FilesModule } from './files/files.module';
+import { FilesService } from './files/files.service';
 
 @Module({
-  imports: [ReviewsModule, PrismaModule, RecipesModule],
+  imports: [ReviewsModule, PrismaModule, RecipesModule, FilesModule],
   controllers: [AppController, RecipesController, ReviewsController],
-  providers: [AppService, RecipesService, ReviewsService],
+  providers: [AppService, RecipesService, ReviewsService, FilesService],
 })
 export class AppModule {}

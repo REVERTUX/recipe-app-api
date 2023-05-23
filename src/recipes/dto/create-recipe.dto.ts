@@ -83,9 +83,8 @@ export class CreateRecipeDto {
   @IsNotEmpty()
   description: string;
 
-  @IsString()
-  @IsNotEmpty()
-  image: string;
+  @IsUUID()
+  imageId: string;
 
   @ValidateNested()
   cookingTime: CookingTimeDto;

@@ -16,7 +16,7 @@ export class RecipesRepository {
         categories,
         cookingTime,
         description,
-        image,
+        imageId,
         ingredients,
         nutrients,
         servings,
@@ -29,7 +29,7 @@ export class RecipesRepository {
       data: {
         calories,
         description,
-        image,
+        imageId,
         servings,
         title,
         categories: {
