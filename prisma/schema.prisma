@@ -14,7 +14,7 @@ model Recipe {
   id           String             @id @default(uuid())
   title        String
   description  String
-  image        String
+  image        File?              @relation(fields: [imageId], references: [id])
   creationDate DateTime           @default(now())
   cookingTime  CookingTime?
   servings     Int
@@ -25,6 +25,7 @@ model Recipe {
   reviews      Review[]
   ingredients  RecipeIngredient[]
   categories   RecipeCategory[]
+  imageId      String?
 }
 
 model Review {
@@ -96,4 +97,12 @@ model RecipeStep {
   recipeId String
 
   @@unique([recipeId, order])
+}
+
+model File {
+  id       String   @id @default(uuid())
+  filename String
+  path     String
+  mimetype String
+  Recipe   Recipe[]
 }
