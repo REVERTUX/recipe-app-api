@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,18 +11,18 @@ model Recipe {
   id           String             @id @default(uuid())
   title        String
   description  String
-  image        File?              @relation(fields: [imageId], references: [id])
   creationDate DateTime           @default(now())
-  cookingTime  CookingTime?
   servings     Int
-  nutrients    Nutrients?
   rating       Float?
   calories     Float
+  imageId      String?
+  cookingTime  CookingTime?
+  nutrients    Nutrients?
+  image        File?              @relation(fields: [imageId], references: [id])
+  categories   RecipeCategory[]
+  ingredients  RecipeIngredient[]
   steps        RecipeStep[]
   reviews      Review[]
-  ingredients  RecipeIngredient[]
-  categories   RecipeCategory[]
-  imageId      String?
 }
 
 model Review {
@@ -34,15 +31,15 @@ model Review {
   rating       Float
   comment      String
   creationDate DateTime @default(now())
-  recipe       Recipe   @relation(fields: [recipeId], references: [id])
   recipeId     String
+  recipe       Recipe   @relation(fields: [recipeId], references: [id])
 }
 
 model CookingTime {
   value    Float
   unit     String
-  recipe   Recipe @relation(fields: [recipeId], references: [id])
   recipeId String @unique
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
 }
 
 model Ingredient {
@@ -62,22 +59,22 @@ model Category {
 
 model RecipeCategory {
   id           String   @id @default(uuid())
-  category     Category @relation(fields: [categoryName], references: [name])
-  recipe       Recipe   @relation(fields: [recipeId], references: [id])
   recipeId     String
   categoryName String
+  category     Category @relation(fields: [categoryName], references: [name])
+  recipe       Recipe   @relation(fields: [recipeId], references: [id])
 }
 
 model RecipeIngredient {
   id                 String         @id @default(uuid())
-  ingredient         Ingredient     @relation(fields: [ingredientName], references: [name])
   amount             Float
-  unit               IngredientUnit @relation(fields: [ingredientUnitName], references: [name])
-  recipe             Recipe         @relation(fields: [recipeId], references: [id])
   recipeId           String
-  description        String?
   ingredientUnitName String
   ingredientName     String
+  description        String?
+  ingredient         Ingredient     @relation(fields: [ingredientName], references: [name])
+  unit               IngredientUnit @relation(fields: [ingredientUnitName], references: [name])
+  recipe             Recipe         @relation(fields: [recipeId], references: [id])
 }
 
 model Nutrients {
@@ -85,16 +82,16 @@ model Nutrients {
   fat      Float
   protein  Float
   carbs    Float
-  recipe   Recipe @relation(fields: [recipeId], references: [id])
   recipeId String @unique
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
 }
 
 model RecipeStep {
   id       String @id @default(uuid())
   step     String
   order    Int
-  Recipe   Recipe @relation(fields: [recipeId], references: [id])
   recipeId String
+  Recipe   Recipe @relation(fields: [recipeId], references: [id])
 
   @@unique([recipeId, order])
 }
@@ -105,4 +102,13 @@ model File {
   path     String
   mimetype String
   Recipe   Recipe[]
+}
+
+model User {
+  id                        String   @id @default(uuid())
+  email                     String   @unique
+  name                      String
+  password                  String
+  creationDate              DateTime @default(now())
+  currentHashedRefreshToken String?
 }

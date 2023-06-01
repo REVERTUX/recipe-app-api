@@ -4,7 +4,7 @@
 $ npm install
 ```
 
-## Setting envinronment
+## Setting environment
 
 ```bash
 # start PostgreSQL in container
@@ -31,6 +31,12 @@ $ npm run start:prod
 ## Generate migration
 ```bash
 $ npx prisma migrate dev --name add_profile
+```
+
+## Update types 
+```bash
+$ npx prisma db pull
+$ npx prisma generate
 ```
 
 ## Test

@@ -7,7 +7,6 @@ const prisma = new PrismaClient();
 
 const recipe: Prisma.RecipeCreateInput = {
   title: 'Pesto Pasta',
-  imageId: undefined,
   description: 'Delicious and easy pesto pasta recipe',
   calories: 500,
   rating: 4.5,
