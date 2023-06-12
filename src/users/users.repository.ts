@@ -12,7 +12,7 @@ export class UsersRepository {
     return this.prisma.user.create({ data, select });
   }
 
-  getUserWithPasswordBy(params: { where: Prisma.UserWhereUniqueInput }) {
+  getUserWithPasswordBy(params: { where: Prisma.UserWhereInput }) {
     const { where } = params;
     return this.prisma.user.findFirstOrThrow({
       where,
@@ -20,7 +20,7 @@ export class UsersRepository {
     });
   }
 
-  getUserBy(params: { where: Prisma.UserWhereUniqueInput }) {
+  getUserBy(params: { where: Prisma.UserWhereInput }) {
     const { where } = params;
     return this.prisma.user.findFirstOrThrow({
       where,
@@ -33,7 +33,7 @@ export class UsersRepository {
     });
   }
 
-  getUserPasswordBy(params: { where: Prisma.UserWhereUniqueInput }) {
+  getUserPasswordBy(params: { where: Prisma.UserWhereInput }) {
     const { where } = params;
     return this.prisma.user.findFirstOrThrow({
       where,

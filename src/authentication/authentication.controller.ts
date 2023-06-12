@@ -8,11 +8,12 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { Response } from 'express';
+
 import { AuthenticationService } from './authentication.service';
 import { RegisterDto } from './register';
 import { LocalAuthenticationGuard } from './localAuthentication.guard';
 import RequestWithUser from './requestWithUser.interface';
-import { Response } from 'express';
 import JwtAuthenticationGuard from './jwt-authentication.guard';
 import { UsersService } from 'src/users/users.service';
 import JwtRefreshGuard from './jwt-refresh.guard';
@@ -59,8 +60,8 @@ export class AuthenticationController {
   @UseGuards(JwtAuthenticationGuard)
   @Get()
   authenticate(@Req() request: RequestWithUser) {
-    const { name } = request.user;
-    return { name };
+    const { name, email } = request.user;
+    return { name, email };
   }
 
   @UseGuards(JwtRefreshGuard)

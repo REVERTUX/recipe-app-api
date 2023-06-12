@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 import { CreateUserDto } from './dto/create-user.dto';
@@ -11,16 +12,35 @@ export class UsersService {
   private readonly logger = new Logger(UsersService.name);
 
   async create(createUserDto: CreateUserDto) {
-    this.logger.log(`Creating user ${createUserDto.name}`);
+    this.logger.log(
+      `Creating user ${createUserDto.name} with email ${createUserDto.email}`,
+    );
 
-    const data = await this.repository.createUser({
-      data: createUserDto,
-      select: { id: true, email: true, name: true },
-    });
+    createUserDto.email = createUserDto.email.toLowerCase();
 
-    this.logger.log(`Created user ${createUserDto.name}`);
+    try {
+      const data = await this.repository.createUser({
+        data: createUserDto,
+        select: { id: true, email: true, name: true },
+      });
 
-    return data;
+      this.logger.log(
+        `Created user ${createUserDto.name} with email ${createUserDto.email}`,
+      );
+
+      return data;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code == 'P2002') {
+          this.logger.error(`Email ${createUserDto.email} already used`);
+          throw new HttpException('Email already used', HttpStatus.CONFLICT);
+        }
+        throw new HttpException(
+          'User creation error',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
   }
 
   async getUserByEmail(email: string) {
@@ -52,7 +72,7 @@ export class UsersService {
   async getUserPasswordByEmail(email: string) {
     try {
       return await this.repository.getUserPasswordBy({
-        where: { email },
+        where: { email: { equals: email, mode: 'insensitive' } },
       });
     } catch (error) {
       throw new HttpException(

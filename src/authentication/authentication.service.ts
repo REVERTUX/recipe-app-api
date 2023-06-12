@@ -22,6 +22,7 @@ export class AuthenticationService {
       ...registrationData,
       password: hashedPassword,
     });
+
     return createdUser;
   }
 
