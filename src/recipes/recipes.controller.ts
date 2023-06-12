@@ -6,12 +6,14 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 
 import { RecipesService } from './recipes.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { CreateIngredientDto } from './dto/create-ingredient.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
 
 @Controller('recipes')
 export class RecipesController {
@@ -30,6 +32,7 @@ export class RecipesController {
   }
 
   @Post('ingredients')
+  @UseGuards(JwtAuthenticationGuard)
   createIngredient(@Body() ingredient: CreateIngredientDto) {
     return this.recipesService.createIngredient(ingredient.name);
   }
@@ -47,11 +50,13 @@ export class RecipesController {
   }
 
   @Post('categories')
+  @UseGuards(JwtAuthenticationGuard)
   createCategory(@Body() category: CreateCategoryDto) {
     return this.recipesService.createCategory(category.name);
   }
 
   @Post()
+  @UseGuards(JwtAuthenticationGuard)
   createRecipe(@Body() recipe: CreateRecipeDto) {
     return this.recipesService.createRecipe(recipe);
   }
@@ -92,6 +97,7 @@ export class RecipesController {
   // }
 
   @Delete(':id')
+  @UseGuards(JwtAuthenticationGuard)
   removeRecipe(@Param('id') id: string) {
     return this.recipesService.removeRecipe(id);
   }
