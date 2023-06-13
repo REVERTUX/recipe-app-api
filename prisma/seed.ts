@@ -5,12 +5,20 @@ import { Prisma, PrismaClient } from '@prisma/client';
 // initialize Prisma Client
 const prisma = new PrismaClient();
 
+const user: Prisma.UserCreateInput = {
+  email: 'john@example.com',
+  name: 'John',
+  password: 'xxxxxxxx',
+  id: 'fb9fe445-10bd-47f5-99ea-2f7ad76810ad',
+};
+
 const recipe: Prisma.RecipeCreateInput = {
   title: 'Pesto Pasta',
   description: 'Delicious and easy pesto pasta recipe',
   calories: 500,
   rating: 4.5,
   servings: 4,
+  user: {},
 };
 
 const cookingTime = { value: 1, unit: 'h' };
@@ -63,12 +71,12 @@ const recipeIngredients = [
 
 const reviews = [
   {
-    user: 'Alice',
+    userId: 'fb9fe445-10bd-47f5-99ea-2f7ad76810ad',
     rating: 5,
     comment: 'This was amazing! Definitely making it again.',
   },
   {
-    user: 'Bob',
+    userId: 'fb9fe445-10bd-47f5-99ea-2f7ad76810ad',
     rating: 4,
     comment:
       'Great recipe! I added some grilled chicken to mine and it turned out really well.',
@@ -107,10 +115,16 @@ async function main() {
     skipDuplicates: true,
   });
 
+  const user1 = prisma.user.createMany({
+    data: user,
+    skipDuplicates: true,
+  });
+
   // create dummy recipe
   const recipe1 = prisma.recipe.create({
     data: {
       ...recipe,
+      user: { connect: { id: 'fb9fe445-10bd-47f5-99ea-2f7ad76810ad' } },
       reviews: { createMany: { data: reviews } },
       steps: { createMany: { data: steps } },
       nutrients: { create: { ...nutrients } },
@@ -130,7 +144,13 @@ async function main() {
     },
   });
 
-  prisma.$transaction([categories1, ingredients1, ingredientUnits1, recipe1]);
+  prisma.$transaction([
+    user1,
+    categories1,
+    ingredients1,
+    ingredientUnits1,
+    recipe1,
+  ]);
 
   console.log({ recipe1 });
 }

@@ -12,8 +12,11 @@ export class ReviewsService {
     private recipesService: RecipesService,
   ) {}
 
-  async createReview(review: CreateReviewDto): Promise<Review> {
-    const newReview = await this.repository.createReview({ data: review });
+  async createReview(review: CreateReviewDto, userId: string): Promise<Review> {
+    const newReview = await this.repository.createReview(
+      { data: review },
+      userId,
+    );
     this.updateRecipeRating(newReview.id);
     return newReview;
   }

@@ -6,11 +6,13 @@ import {
   Param,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
+import RequestWithUser from 'src/authentication/requestWithUser.interface';
 
 @Controller('reviews')
 export class ReviewsController {
@@ -18,8 +20,11 @@ export class ReviewsController {
 
   @Post()
   @UseGuards(JwtAuthenticationGuard)
-  createReview(@Body() review: CreateReviewDto) {
-    return this.reviewsService.createReview(review);
+  createReview(
+    @Req() request: RequestWithUser,
+    @Body() review: CreateReviewDto,
+  ) {
+    return this.reviewsService.createReview(review, request.user.id);
   }
 
   @Get()

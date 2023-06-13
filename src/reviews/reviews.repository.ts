@@ -7,9 +7,16 @@ import { CreateReviewDto } from './dto/create-review.dto';
 export class ReviewsRepository {
   constructor(private prisma: PrismaService) {}
 
-  async createReview(params: { data: CreateReviewDto }): Promise<Review> {
-    const { data } = params;
-    return await this.prisma.review.create({ data });
+  async createReview(
+    params: { data: CreateReviewDto },
+    userId: string,
+  ): Promise<Review> {
+    const {
+      data: { comment, rating, recipeId },
+    } = params;
+    return await this.prisma.review.create({
+      data: { comment, rating, recipeId, userId },
+    });
   }
 
   getReview(params: { where: { id: string } }): Promise<Review> {

@@ -9,7 +9,10 @@ import { RecipeListView, RecipeView } from './entities/recipe.entity';
 export class RecipesRepository {
   constructor(private prisma: PrismaService) {}
 
-  async createRecipe(params: { data: CreateRecipeDto }): Promise<Recipe> {
+  async createRecipe(
+    params: { data: CreateRecipeDto },
+    userId: string,
+  ): Promise<Recipe> {
     const {
       data: {
         calories,
@@ -27,6 +30,7 @@ export class RecipesRepository {
 
     return this.prisma.recipe.create({
       data: {
+        userId,
         calories,
         description,
         imageId,

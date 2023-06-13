@@ -7,6 +7,7 @@ import {
   Delete,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 
 import { RecipesService } from './recipes.service';
@@ -14,6 +15,7 @@ import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { CreateIngredientDto } from './dto/create-ingredient.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
+import RequestWithUser from 'src/authentication/requestWithUser.interface';
 
 @Controller('recipes')
 export class RecipesController {
@@ -57,8 +59,11 @@ export class RecipesController {
 
   @Post()
   @UseGuards(JwtAuthenticationGuard)
-  createRecipe(@Body() recipe: CreateRecipeDto) {
-    return this.recipesService.createRecipe(recipe);
+  createRecipe(
+    @Req() request: RequestWithUser,
+    @Body() recipe: CreateRecipeDto,
+  ) {
+    return this.recipesService.createRecipe(recipe, request.user.id);
   }
 
   @Get()
@@ -87,6 +92,28 @@ export class RecipesController {
   getRecipe(@Param('id') id: string) {
     return this.recipesService.getRecipe(id);
   }
+
+  // @Get('favorites')
+  // getFavoritesRecipes(
+  //   @Query('search') search?: string,
+  //   @Query('take') take?: number,
+  //   @Query('skip') skip?: number,
+  // ) {
+  //   const where = search
+  //     ? {
+  //         OR: [
+  //           { title: { contains: search } },
+  //           { description: { contains: search } },
+  //         ],
+  //       }
+  //     : {};
+
+  //   return this.recipesService.getRecipes({
+  //     take: Number(take) || 10,
+  //     skip: Number(skip) || 0,
+  //     where,
+  //   });
+  // }
 
   // @Patch(':id')
   // updateRecipe(

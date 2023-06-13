@@ -9,8 +9,11 @@ import { RecipeListView } from './entities/recipe.entity';
 export class RecipesService {
   constructor(private repository: RecipesRepository) {}
 
-  async createRecipe(recipe: CreateRecipeDto): Promise<Recipe | null> {
-    return this.repository.createRecipe({ data: recipe });
+  async createRecipe(
+    recipe: CreateRecipeDto,
+    userId: string,
+  ): Promise<Recipe | null> {
+    return this.repository.createRecipe({ data: recipe }, userId);
   }
 
   getRecipes(params: {

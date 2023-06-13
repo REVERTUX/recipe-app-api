@@ -33,6 +33,11 @@ $ npm run start:prod
 $ npx prisma migrate dev --name add_profile
 ```
 
+## Generate migration without applying it
+```bash
+$ npx prisma migrate dev --create-only
+```
+
 ## Update types 
 ```bash
 $ npx prisma db pull
