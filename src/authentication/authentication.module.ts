@@ -10,6 +10,7 @@ import { AuthenticationService } from './authentication.service';
 import { UsersModule } from '../users/users.module';
 import { AuthenticationController } from './authentication.controller';
 import { PrismaModule } from 'src/prisma/prisma.module';
+import { JwtAllowAllStrategy } from './jwt-allow-all.strategy';
 
 @Module({
   imports: [
@@ -18,24 +19,13 @@ import { PrismaModule } from 'src/prisma/prisma.module';
     ConfigModule,
     PrismaModule,
     JwtModule.register({}),
-    // JwtModule.registerAsync({
-    //   imports: [ConfigModule],
-    //   inject: [ConfigService],
-    //   useFactory: async (configService: ConfigService) => ({
-    //     secret: configService.get('JWT_ACCESS_TOKEN_SECRET'),
-    //     signOptions: {
-    //       expiresIn: `${configService.get(
-    //         'JWT_ACCESS_TOKEN_EXPIRATION_TIME',
-    //       )}s`,
-    //     },
-    //   }),
-    // }),
   ],
   providers: [
     AuthenticationService,
     LocalStrategy,
     JwtStrategy,
     JwtRefreshTokenStrategy,
+    JwtAllowAllStrategy
   ],
   controllers: [AuthenticationController],
 })

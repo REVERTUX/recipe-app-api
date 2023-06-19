@@ -16,6 +16,8 @@ import { CreateIngredientDto } from './dto/create-ingredient.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
 import RequestWithUser from 'src/authentication/requestWithUser.interface';
+import { Prisma } from '@prisma/client';
+import JwtAllGuard from 'src/authentication/jwt-all.guard';
 
 @Controller('recipes')
 export class RecipesController {
@@ -67,12 +69,15 @@ export class RecipesController {
   }
 
   @Get()
+  @UseGuards(JwtAllGuard)
   getRecipes(
+    @Req() request: RequestWithUser,
     @Query('search') search?: string,
     @Query('take') take?: number,
     @Query('skip') skip?: number,
   ) {
-    const where = search
+    console.log(request.user);
+    const where: Prisma.RecipeWhereInput = search
       ? {
           OR: [
             { title: { contains: search } },
@@ -88,32 +93,34 @@ export class RecipesController {
     });
   }
 
+  @Get('favorite')
+  @UseGuards(JwtAuthenticationGuard)
+  getFavoritesRecipes(
+    @Req() request: RequestWithUser,
+    @Query('search') search?: string,
+    @Query('take') take?: number,
+    @Query('skip') skip?: number,
+  ) {
+    const where: Prisma.RecipeWhereInput = {};
+    if (search) {
+      where['OR'] = [
+        { title: { contains: search } },
+        { description: { contains: search } },
+      ];
+    }
+    where['Favorite'] = { some: { userId: request.user.id } };
+
+    return this.recipesService.getRecipes({
+      take: Number(take) || 10,
+      skip: Number(skip) || 0,
+      where,
+    });
+  }
+
   @Get(':id')
   getRecipe(@Param('id') id: string) {
     return this.recipesService.getRecipe(id);
   }
-
-  // @Get('favorites')
-  // getFavoritesRecipes(
-  //   @Query('search') search?: string,
-  //   @Query('take') take?: number,
-  //   @Query('skip') skip?: number,
-  // ) {
-  //   const where = search
-  //     ? {
-  //         OR: [
-  //           { title: { contains: search } },
-  //           { description: { contains: search } },
-  //         ],
-  //       }
-  //     : {};
-
-  //   return this.recipesService.getRecipes({
-  //     take: Number(take) || 10,
-  //     skip: Number(skip) || 0,
-  //     where,
-  //   });
-  // }
 
   // @Patch(':id')
   // updateRecipe(

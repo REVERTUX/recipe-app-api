@@ -53,15 +53,18 @@ export class RecipesRepository {
     });
   }
 
-  async getRecipes(params: {
-    skip?: number;
-    take?: number;
-    cursor?: Prisma.RecipeWhereUniqueInput;
-    where?: Prisma.RecipeWhereInput;
-    orderBy?: Prisma.RecipeOrderByWithRelationInput;
-  }): Promise<{ data: RecipeListView[]; count: number }> {
+  async getRecipes(
+    params: {
+      skip?: number;
+      take?: number;
+      cursor?: Prisma.RecipeWhereUniqueInput;
+      where?: Prisma.RecipeWhereInput;
+      orderBy?: Prisma.RecipeOrderByWithRelationInput;
+    },
+    userId?: string,
+  ): Promise<{ data: RecipeListView[]; count: number }> {
     const { cursor, orderBy, skip, take, where } = params;
-    const data = await this.prisma.recipe.findMany({
+    const recipes = await this.prisma.recipe.findMany({
       skip,
       take,
       cursor,
@@ -76,9 +79,17 @@ export class RecipesRepository {
         cookingTime: { select: { unit: true, value: true } },
       },
     });
+
+    const recipesIds = recipes.map(({ id }) => id);
+    const favoriteRecipesIds = await this.getFavoriteRecipes(recipesIds);
+    const recipesWithAdditionalData = recipes.map((recipe) => ({
+      ...recipe,
+      favorite: favoriteRecipesIds.includes(recipe.id),
+    }));
+
     const count = await this.prisma.recipe.count({ where });
 
-    return { data, count };
+    return { data: recipesWithAdditionalData, count };
   }
 
   async getRecipe(params: { where: { id: string } }): Promise<RecipeView> {
@@ -161,5 +172,13 @@ export class RecipesRepository {
 
   async createCategory(name: string) {
     return this.prisma.category.create({ data: { name } });
+  }
+
+  private async getFavoriteRecipes(recipesId: string[]): Promise<string[]> {
+    const data = await this.prisma.favorite.findMany({
+      select: { recipeId: true },
+      where: { AND: { recipeId: { in: recipesId } } },
+    });
+    return data.map(({ recipeId }) => recipeId);
   }
 }
