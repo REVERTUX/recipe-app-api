@@ -18,7 +18,7 @@ const recipe: Prisma.RecipeCreateInput = {
   calories: 500,
   rating: 4.5,
   servings: 4,
-  user: {},
+  user: { connect: { id: user.id } },
 };
 
 const cookingTime = { value: 1, unit: 'h' };
@@ -74,14 +74,16 @@ const reviews = [
     userId: 'fb9fe445-10bd-47f5-99ea-2f7ad76810ad',
     rating: 5,
     comment: 'This was amazing! Definitely making it again.',
+    // userId: { connect: { userId: user.id } },
   },
   {
     userId: 'fb9fe445-10bd-47f5-99ea-2f7ad76810ad',
     rating: 4,
     comment:
       'Great recipe! I added some grilled chicken to mine and it turned out really well.',
+    // userId: { connect: { userId: user.id } }
   },
-];
+]
 
 const steps = [
   { order: 1, step: 'Bring a large pot of salted water to a boil.' },
