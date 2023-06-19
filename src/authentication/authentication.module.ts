@@ -25,7 +25,7 @@ import { JwtAllowAllStrategy } from './jwt-allow-all.strategy';
     LocalStrategy,
     JwtStrategy,
     JwtRefreshTokenStrategy,
-    JwtAllowAllStrategy
+    JwtAllowAllStrategy,
   ],
   controllers: [AuthenticationController],
 })

@@ -9,6 +9,7 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 
 import { RecipesService } from './recipes.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
@@ -16,8 +17,7 @@ import { CreateIngredientDto } from './dto/create-ingredient.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
 import RequestWithUser from 'src/authentication/requestWithUser.interface';
-import { Prisma } from '@prisma/client';
-import JwtAllGuard from 'src/authentication/jwt-all.guard';
+import JwtAllowAllGuard from 'src/authentication/jwt-all.guard';
 
 @Controller('recipes')
 export class RecipesController {
@@ -69,7 +69,7 @@ export class RecipesController {
   }
 
   @Get()
-  @UseGuards(JwtAllGuard)
+  @UseGuards(JwtAllowAllGuard)
   getRecipes(
     @Req() request: RequestWithUser,
     @Query('search') search?: string,

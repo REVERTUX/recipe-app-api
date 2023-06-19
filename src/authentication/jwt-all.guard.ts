@@ -1,23 +1,19 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Observable } from 'rxjs';
 
 @Injectable()
-// extends AuthGuard('jwt-all')
-export default class JwtAllGuard implements CanActivate {
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
-    // const request = context.switchToHttp().getRequest();
-    // console.log(request);
-
-    // if (token) {
-    //   const payload = this.jwtService.verify(token);
-    //   // You can access the user ID from the payload and do something with it
-    //   console.log('User ID:', payload.userId);
-    // }
-
-    // Return true to allow unauthenticated users
-    return true;
+ export default class JwtAllowAllGuard extends AuthGuard('jwt-all') {
+  canActivate(context: ExecutionContext) {
+    // Add your custom authentication logic here
+    // for example, call super.logIn(request) to establish a session.
+    return super.canActivate(context);
   }
-}
+
+  handleRequest(err: Error, user: any) {
+    // You can throw an exception based on either "info" or "err" arguments
+    if (err || !user) {
+      return undefined
+    }
+    return user;
+  }
+ }
