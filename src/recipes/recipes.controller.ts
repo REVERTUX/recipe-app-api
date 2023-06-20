@@ -18,7 +18,6 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
 import RequestWithUser from 'src/authentication/requestWithUser.interface';
 import JwtAllowAllGuard from 'src/authentication/jwt-all.guard';
-import { request } from 'http';
 
 @Controller('recipes')
 export class RecipesController {
