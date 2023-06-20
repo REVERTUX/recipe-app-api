@@ -9,7 +9,7 @@ import { AuthGuard } from '@nestjs/passport';
     return super.canActivate(context);
   }
 
-  handleRequest(err: Error, user: any) {
+  handleRequest(err: Error, user: any, info: any, context: ExecutionContext, status: any) {
     // You can throw an exception based on either "info" or "err" arguments
     if (err || !user) {
       return undefined

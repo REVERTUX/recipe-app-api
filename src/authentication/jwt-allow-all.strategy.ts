@@ -1,8 +1,9 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { PassportStrategy } from '@nestjs/passport';
+import { PassportStrategy  } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
+import jwt_decode from 'jwt-decode';
 
 import { UsersService } from '../users/users.service';
 import { TokenPayload } from './tokenPayload.interface';
@@ -24,7 +25,8 @@ export class JwtAllowAllStrategy extends PassportStrategy(Strategy, 'jwt-all') {
    });
  }
 
- async validate(payload: TokenPayload) {
-   return this.userService.getUserById(payload.userId);
+ async validate(payload: Request) {
+   const user: TokenPayload = jwt_decode(payload.cookies.Authentication)
+   return this.userService.getUserById(user.userId);
  }
 }
