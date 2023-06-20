@@ -18,6 +18,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
 import RequestWithUser from 'src/authentication/requestWithUser.interface';
 import JwtAllowAllGuard from 'src/authentication/jwt-all.guard';
+import { request } from 'http';
 
 @Controller('recipes')
 export class RecipesController {
@@ -76,7 +77,7 @@ export class RecipesController {
     @Query('take') take?: number,
     @Query('skip') skip?: number,
   ) {
-    console.log(request.user);
+    const userId = request?.user?.id;
     const where: Prisma.RecipeWhereInput = search
       ? {
           OR: [
@@ -85,12 +86,14 @@ export class RecipesController {
           ],
         }
       : {};
-
-    return this.recipesService.getRecipes({
-      take: Number(take) || 10,
-      skip: Number(skip) || 0,
-      where,
-    });
+    return this.recipesService.getRecipes(
+      {
+        take: Number(take) || 10,
+        skip: Number(skip) || 0,
+        where,
+      },
+      userId,
+    );
   }
 
   @Get('favorite')
@@ -101,6 +104,7 @@ export class RecipesController {
     @Query('take') take?: number,
     @Query('skip') skip?: number,
   ) {
+    const userId = request.user.id;
     const where: Prisma.RecipeWhereInput = {};
     if (search) {
       where['OR'] = [
@@ -108,7 +112,7 @@ export class RecipesController {
         { description: { contains: search } },
       ];
     }
-    where['Favorite'] = { some: { userId: request.user.id } };
+    where['Favorite'] = { some: { userId } };
 
     return this.recipesService.getRecipes({
       take: Number(take) || 10,
@@ -118,8 +122,10 @@ export class RecipesController {
   }
 
   @Get(':id')
-  getRecipe(@Param('id') id: string) {
-    return this.recipesService.getRecipe(id);
+  @UseGuards(JwtAllowAllGuard)
+  getRecipe(@Req() request: RequestWithUser, @Param('id') id: string) {
+    const userId = request?.user?.id;
+    return this.recipesService.getRecipe(id, userId);
   }
 
   // @Patch(':id')

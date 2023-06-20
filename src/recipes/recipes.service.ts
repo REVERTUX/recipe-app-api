@@ -16,18 +16,21 @@ export class RecipesService {
     return this.repository.createRecipe({ data: recipe }, userId);
   }
 
-  getRecipes(params: {
-    skip?: number;
-    take?: number;
-    cursor?: Prisma.RecipeWhereUniqueInput;
-    where?: Prisma.RecipeWhereInput;
-    orderBy?: Prisma.RecipeOrderByWithRelationInput;
-  }): Promise<{ data: RecipeListView[]; count: number }> {
-    return this.repository.getRecipes(params);
+  getRecipes(
+    params: {
+      skip?: number;
+      take?: number;
+      cursor?: Prisma.RecipeWhereUniqueInput;
+      where?: Prisma.RecipeWhereInput;
+      orderBy?: Prisma.RecipeOrderByWithRelationInput;
+    },
+    userId?: string,
+  ): Promise<{ data: RecipeListView[]; count: number }> {
+    return this.repository.getRecipes(params, userId);
   }
 
-  getRecipe(id: string): Promise<Recipe> {
-    return this.repository.getRecipe({ where: { id } });
+  getRecipe(id: string, userId?: string): Promise<Recipe> {
+    return this.repository.getRecipe({ where: { id } }, userId);
   }
 
   removeRecipe(id: string): Promise<Recipe | null> {

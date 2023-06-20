@@ -80,21 +80,37 @@ export class RecipesRepository {
       },
     });
 
-    const recipesIds = recipes.map(({ id }) => id);
-    const favoriteRecipesIds = await this.getFavoriteRecipes(recipesIds);
+    const count = await this.prisma.recipe.count({ where });
+
+    if (userId) {
+      const recipesIds = recipes.map(({ id }) => id);
+
+      const favoriteRecipesIds = await this.getFavoriteRecipesIds(
+        recipesIds,
+        userId,
+      );
+      const recipesWithAdditionalData = recipes.map((recipe) => ({
+        ...recipe,
+        favorite: favoriteRecipesIds.includes(recipe.id),
+      }));
+
+      return { data: recipesWithAdditionalData, count };
+    }
+
     const recipesWithAdditionalData = recipes.map((recipe) => ({
       ...recipe,
-      favorite: favoriteRecipesIds.includes(recipe.id),
+      favorite: false,
     }));
-
-    const count = await this.prisma.recipe.count({ where });
 
     return { data: recipesWithAdditionalData, count };
   }
 
-  async getRecipe(params: { where: { id: string } }): Promise<RecipeView> {
+  async getRecipe(
+    params: { where: { id: string } },
+    userId?: string,
+  ): Promise<RecipeView> {
     const { where } = params;
-    return this.prisma.recipe.findUniqueOrThrow({
+    const recipe = await this.prisma.recipe.findUniqueOrThrow({
       where,
       include: {
         categories: {
@@ -115,6 +131,12 @@ export class RecipesRepository {
         },
       },
     });
+
+    const isFavorite = await this.isRecipeUserFavorite(recipe.id, userId);
+
+    const recipeWithAdditionalData = { ...recipe, favorite: isFavorite };
+
+    return recipeWithAdditionalData;
   }
 
   async removeRecipe(params: {
@@ -174,11 +196,35 @@ export class RecipesRepository {
     return this.prisma.category.create({ data: { name } });
   }
 
-  private async getFavoriteRecipes(recipesId: string[]): Promise<string[]> {
+  private async getFavoriteRecipesIds(
+    recipesId: string[],
+    userId?: string,
+  ): Promise<string[]> {
     const data = await this.prisma.favorite.findMany({
       select: { recipeId: true },
-      where: { AND: { recipeId: { in: recipesId } } },
+      where: {
+        AND: {
+          recipeId: { in: recipesId },
+          userId: { equals: userId },
+        },
+      },
     });
     return data.map(({ recipeId }) => recipeId);
+  }
+
+  private async isRecipeUserFavorite(
+    recipeId: string,
+    userId?: string,
+  ): Promise<boolean> {
+    const data = await this.prisma.favorite.findFirst({
+      select: { recipeId: true },
+      where: {
+        AND: {
+          recipeId: { equals: recipeId },
+          userId: { equals: userId },
+        },
+      },
+    });
+    return !!data;
   }
 }
