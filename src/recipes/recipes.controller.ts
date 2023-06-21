@@ -117,7 +117,7 @@ export class RecipesController {
       take: Number(take) || 10,
       skip: Number(skip) || 0,
       where,
-    });
+    }, userId);
   }
 
   @Get(':id')
