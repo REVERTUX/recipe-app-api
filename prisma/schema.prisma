@@ -16,9 +16,12 @@ model Recipe {
   rating       Float?
   calories     Float
   imageId      String?
+  userId       String
   cookingTime  CookingTime?
+  Favorite     Favorite[]
   nutrients    Nutrients?
   image        File?              @relation(fields: [imageId], references: [id])
+  user         User               @relation(fields: [userId], references: [id])
   categories   RecipeCategory[]
   ingredients  RecipeIngredient[]
   steps        RecipeStep[]
@@ -27,12 +30,13 @@ model Recipe {
 
 model Review {
   id           String   @id @default(uuid())
-  user         String
   rating       Float
   comment      String
   creationDate DateTime @default(now())
   recipeId     String
+  userId       String
   recipe       Recipe   @relation(fields: [recipeId], references: [id])
+  user         User     @relation(fields: [userId], references: [id])
 }
 
 model CookingTime {
@@ -96,6 +100,15 @@ model RecipeStep {
   @@unique([recipeId, order])
 }
 
+model Favorite {
+  recipeId String
+  userId   String
+  Recipe   Recipe @relation(fields: [recipeId], references: [id])
+  User     User   @relation(fields: [userId], references: [id])
+
+  @@unique([recipeId, userId])
+}
+
 model File {
   id       String   @id @default(uuid())
   filename String
@@ -105,10 +118,13 @@ model File {
 }
 
 model User {
-  id                        String   @id @default(uuid())
-  email                     String   @unique
+  id                        String     @id @default(uuid())
+  email                     String     @unique
   name                      String
   password                  String
-  creationDate              DateTime @default(now())
+  creationDate              DateTime   @default(now())
   currentHashedRefreshToken String?
+  Favorite                  Favorite[]
+  Recipe                    Recipe[]
+  Review                    Review[]
 }

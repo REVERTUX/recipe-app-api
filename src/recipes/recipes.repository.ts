@@ -9,7 +9,10 @@ import { RecipeListView, RecipeView } from './entities/recipe.entity';
 export class RecipesRepository {
   constructor(private prisma: PrismaService) {}
 
-  async createRecipe(params: { data: CreateRecipeDto }): Promise<Recipe> {
+  async createRecipe(
+    params: { data: CreateRecipeDto },
+    userId: string,
+  ): Promise<Recipe> {
     const {
       data: {
         calories,
@@ -27,6 +30,7 @@ export class RecipesRepository {
 
     return this.prisma.recipe.create({
       data: {
+        userId,
         calories,
         description,
         imageId,
@@ -49,15 +53,18 @@ export class RecipesRepository {
     });
   }
 
-  async getRecipes(params: {
-    skip?: number;
-    take?: number;
-    cursor?: Prisma.RecipeWhereUniqueInput;
-    where?: Prisma.RecipeWhereInput;
-    orderBy?: Prisma.RecipeOrderByWithRelationInput;
-  }): Promise<{ data: RecipeListView[]; count: number }> {
+  async getRecipes(
+    params: {
+      skip?: number;
+      take?: number;
+      cursor?: Prisma.RecipeWhereUniqueInput;
+      where?: Prisma.RecipeWhereInput;
+      orderBy?: Prisma.RecipeOrderByWithRelationInput;
+    },
+    userId?: string,
+  ): Promise<{ data: RecipeListView[]; count: number }> {
     const { cursor, orderBy, skip, take, where } = params;
-    const data = await this.prisma.recipe.findMany({
+    const recipes = await this.prisma.recipe.findMany({
       skip,
       take,
       cursor,
@@ -72,14 +79,38 @@ export class RecipesRepository {
         cookingTime: { select: { unit: true, value: true } },
       },
     });
+
     const count = await this.prisma.recipe.count({ where });
 
-    return { data, count };
+    if (userId) {
+      const recipesIds = recipes.map(({ id }) => id);
+
+      const favoriteRecipesIds = await this.getFavoriteRecipesIds(
+        recipesIds,
+        userId,
+      );
+      const recipesWithAdditionalData = recipes.map((recipe) => ({
+        ...recipe,
+        favorite: favoriteRecipesIds.includes(recipe.id),
+      }));
+
+      return { data: recipesWithAdditionalData, count };
+    }
+
+    const recipesWithAdditionalData = recipes.map((recipe) => ({
+      ...recipe,
+      favorite: false,
+    }));
+
+    return { data: recipesWithAdditionalData, count };
   }
 
-  async getRecipe(params: { where: { id: string } }): Promise<RecipeView> {
+  async getRecipe(
+    params: { where: { id: string } },
+    userId?: string,
+  ): Promise<RecipeView> {
     const { where } = params;
-    return this.prisma.recipe.findUniqueOrThrow({
+    const recipe = await this.prisma.recipe.findUniqueOrThrow({
       where,
       include: {
         categories: {
@@ -100,6 +131,12 @@ export class RecipesRepository {
         },
       },
     });
+
+    const isFavorite = await this.isRecipeUserFavorite(recipe.id, userId);
+
+    const recipeWithAdditionalData = { ...recipe, favorite: isFavorite };
+
+    return recipeWithAdditionalData;
   }
 
   async removeRecipe(params: {
@@ -157,5 +194,51 @@ export class RecipesRepository {
 
   async createCategory(name: string) {
     return this.prisma.category.create({ data: { name } });
+  }
+
+  async updateRecipeFavorite(
+    recipeId: string,
+    favorite: boolean,
+    userId: string,
+  ) {
+    if (favorite) {
+      await this.prisma.favorite.create({ data: { userId, recipeId } });
+    } else {
+      await this.prisma.favorite.delete({
+        where: { recipeId_userId: { recipeId, userId } },
+      });
+    }
+  }
+
+  private async getFavoriteRecipesIds(
+    recipesId: string[],
+    userId?: string,
+  ): Promise<string[]> {
+    const data = await this.prisma.favorite.findMany({
+      select: { recipeId: true },
+      where: {
+        AND: {
+          recipeId: { in: recipesId },
+          userId: { equals: userId },
+        },
+      },
+    });
+    return data.map(({ recipeId }) => recipeId);
+  }
+
+  private async isRecipeUserFavorite(
+    recipeId: string,
+    userId?: string,
+  ): Promise<boolean> {
+    const data = await this.prisma.favorite.findFirst({
+      select: { recipeId: true },
+      where: {
+        AND: {
+          recipeId: { equals: recipeId },
+          userId: { equals: userId },
+        },
+      },
+    });
+    return !!data;
   }
 }

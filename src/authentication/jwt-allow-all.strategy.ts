@@ -3,11 +3,13 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
+import jwt_decode from 'jwt-decode';
+
 import { UsersService } from '../users/users.service';
 import { TokenPayload } from './tokenPayload.interface';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtAllowAllStrategy extends PassportStrategy(Strategy, 'jwt-all') {
   constructor(
     private readonly configService: ConfigService,
     private readonly userService: UsersService,
@@ -19,11 +21,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         },
       ]),
       secretOrKey: configService.get('JWT_ACCESS_TOKEN_SECRET'),
-      ignoreExpiration: false,
+      passReqToCallback: true,
     });
   }
 
-  async validate(payload: TokenPayload) {
-    return this.userService.getUserById(payload.userId);
+  async validate(payload: Request) {
+    const user: TokenPayload = jwt_decode(payload.cookies.Authentication);
+    return this.userService.getUserById(user.userId);
   }
 }
