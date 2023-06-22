@@ -196,6 +196,20 @@ export class RecipesRepository {
     return this.prisma.category.create({ data: { name } });
   }
 
+  async updateRecipeFavorite(
+    recipeId: string,
+    favorite: boolean,
+    userId: string,
+  ) {
+    if (favorite) {
+      await this.prisma.favorite.create({ data: { userId, recipeId } });
+    } else {
+      await this.prisma.favorite.delete({
+        where: { recipeId_userId: { recipeId, userId } },
+      });
+    }
+  }
+
   private async getFavoriteRecipesIds(
     recipesId: string[],
     userId?: string,

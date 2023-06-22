@@ -8,6 +8,7 @@ import {
   Query,
   UseGuards,
   Req,
+  Put,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
@@ -18,6 +19,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
 import RequestWithUser from 'src/authentication/requestWithUser.interface';
 import JwtAllowAllGuard from 'src/authentication/jwt-all.guard';
+import { UpdateRecipeFavoriteDto } from './dto/update-recipe-favorite.dto';
 
 @Controller('recipes')
 export class RecipesController {
@@ -113,18 +115,21 @@ export class RecipesController {
     }
     where['Favorite'] = { some: { userId } };
 
-    return this.recipesService.getRecipes({
-      take: Number(take) || 10,
-      skip: Number(skip) || 0,
-      where,
-    }, userId);
+    return this.recipesService.getRecipes(
+      {
+        take: Number(take) || 10,
+        skip: Number(skip) || 0,
+        where,
+      },
+      userId,
+    );
   }
 
   @Get(':id')
   @UseGuards(JwtAllowAllGuard)
-  getRecipe(@Req() request: RequestWithUser, @Param('id') id: string) {
+  getRecipe(@Req() request: RequestWithUser, @Param('id') recipeId: string) {
     const userId = request?.user?.id;
-    return this.recipesService.getRecipe(id, userId);
+    return this.recipesService.getRecipe(recipeId, userId);
   }
 
   // @Patch(':id')
@@ -135,9 +140,25 @@ export class RecipesController {
   //   return this.recipesService.updateRecipe(id, recipe);
   // }
 
+  @Put(':id/favorite')
+  @UseGuards(JwtAuthenticationGuard)
+  updateRecipeFavorite(
+    @Req() request: RequestWithUser,
+    @Param('id') recipeId: string,
+    @Body() favorite: UpdateRecipeFavoriteDto,
+  ) {
+    const userId = request.user.id;
+
+    return this.recipesService.updateRecipeFavorite(
+      recipeId,
+      favorite.favorite,
+      userId,
+    );
+  }
+
   @Delete(':id')
   @UseGuards(JwtAuthenticationGuard)
-  removeRecipe(@Param('id') id: string) {
-    return this.recipesService.removeRecipe(id);
+  removeRecipe(@Param('id') recipeId: string) {
+    return this.recipesService.removeRecipe(recipeId);
   }
 }

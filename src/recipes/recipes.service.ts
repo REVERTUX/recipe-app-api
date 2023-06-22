@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Prisma, Recipe } from '@prisma/client';
 
 import { CreateRecipeDto } from './dto/create-recipe.dto';
@@ -9,11 +9,21 @@ import { RecipeListView } from './entities/recipe.entity';
 export class RecipesService {
   constructor(private repository: RecipesRepository) {}
 
+  private readonly logger = new Logger(RecipesService.name);
+
   async createRecipe(
     recipe: CreateRecipeDto,
     userId: string,
   ): Promise<Recipe | null> {
-    return this.repository.createRecipe({ data: recipe }, userId);
+    this.logger.log(
+      `Creating new recipe with title ${recipe.title}. User ${userId} `,
+    );
+    const data = this.repository.createRecipe({ data: recipe }, userId);
+
+    this.logger.log(
+      `Created new recipe with title ${recipe.title} User ${userId} `,
+    );
+    return data;
   }
 
   getRecipes(
@@ -73,5 +83,19 @@ export class RecipesService {
     orderBy?: Prisma.CategoryOrderByWithRelationInput;
   }): Promise<{ data: { name: string }[]; count: number }> {
     return this.repository.getCategories(params);
+  }
+
+  async updateRecipeFavorite(
+    recipeId: string,
+    favorite: boolean,
+    userId: string,
+  ) {
+    this.logger.log(
+      `Updating recipe ${recipeId} favorite flag to ${favorite}. User ${userId} `,
+    );
+    await this.repository.updateRecipeFavorite(recipeId, favorite, userId);
+    this.logger.log(
+      `Updated recipe ${recipeId} favorite flag to ${favorite}. User ${userId} `,
+    );
   }
 }
