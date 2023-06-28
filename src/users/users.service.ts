@@ -21,7 +21,7 @@ export class UsersService {
     try {
       const data = await this.repository.createUser({
         data: createUserDto,
-        select: { id: true, email: true, name: true },
+        select: { email: true, name: true },
       });
 
       this.logger.log(

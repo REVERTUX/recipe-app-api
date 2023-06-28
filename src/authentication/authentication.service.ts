@@ -22,7 +22,6 @@ export class AuthenticationService {
       ...registrationData,
       password: hashedPassword,
     });
-
     return createdUser;
   }
 
@@ -31,8 +30,11 @@ export class AuthenticationService {
       const { password } = await this.usersService.getUserPasswordByEmail(
         email,
       );
+
       await this.verifyPassword(plainTextPassword, password);
+
       const user = await this.usersService.getUserWithPasswordByEmail(email);
+
       return user;
     } catch (error) {
       throw new HttpException(
