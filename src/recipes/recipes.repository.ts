@@ -151,29 +151,6 @@ export class RecipesRepository {
     return this.prisma.recipe.update({ data: { rating }, where: { id } });
   }
 
-  async getIngredients(params: {
-    skip?: number;
-    take?: number;
-    where?: Prisma.IngredientWhereInput;
-    orderBy?: Prisma.IngredientOrderByWithRelationInput;
-  }): Promise<{ data: { name: string }[]; count: number }> {
-    const { orderBy, skip, take, where } = params;
-    const data = await this.prisma.ingredient.findMany({
-      skip,
-      take,
-      where,
-      orderBy,
-      select: { name: true },
-    });
-    const count = await this.prisma.ingredient.count({ where });
-
-    return { data, count };
-  }
-
-  async createIngredient(name: string) {
-    return this.prisma.ingredient.create({ data: { name } });
-  }
-
   async getCategories(params: {
     skip?: number;
     take?: number;
