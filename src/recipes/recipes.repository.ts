@@ -165,7 +165,7 @@ export class RecipesRepository {
       orderBy,
       select: { name: true },
     });
-    const count = await this.prisma.ingredient.count({ where });
+    const count = await this.prisma.category.count({ where });
 
     return { data, count };
   }
