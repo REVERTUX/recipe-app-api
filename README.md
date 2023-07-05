@@ -40,8 +40,8 @@ $ npx prisma migrate dev --create-only
 
 ## Update types 
 ```bash
-$ npx prisma db pull
-$ npx prisma generate
+$ npx prismany push
+$ npx prismany generate
 ```
 
 ## Test

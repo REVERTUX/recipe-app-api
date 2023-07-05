@@ -5,6 +5,7 @@ import {
   ValidateNested,
   IsUUID,
   IsOptional,
+  IsJSON,
 } from 'class-validator';
 
 export class CookingTimeDto {
@@ -74,6 +75,15 @@ export class RecipeCategoryDto {
   recipeId: string;
 }
 
+export class RecipeStepsDto {
+  @IsString()
+  @IsNotEmpty()
+  version: string;
+
+  @IsJSON()
+  blocks: object[];
+}
+
 export class CreateRecipeDto {
   @IsString()
   @IsNotEmpty()
@@ -84,6 +94,7 @@ export class CreateRecipeDto {
   description: string;
 
   @IsUUID()
+  @IsOptional()
   imageId: string;
 
   @ValidateNested()
@@ -99,11 +110,8 @@ export class CreateRecipeDto {
   calories: number;
 
   @ValidateNested()
-  steps: CreateRecipeStepDto[];
-
-  @ValidateNested()
-  ingredients: RecipeIngredientDto[];
-
-  @ValidateNested()
   categories: RecipeCategoryDto[];
+
+  @ValidateNested()
+  steps: RecipeStepsDto;
 }

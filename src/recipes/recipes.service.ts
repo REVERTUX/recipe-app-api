@@ -3,7 +3,7 @@ import { Prisma, Recipe } from '@prisma/client';
 
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { RecipesRepository } from './recipes.repository';
-import { RecipeListView } from './entities/recipe.entity';
+import { RecipeListView, RecipeStepsView } from './entities/recipe.entity';
 
 @Injectable()
 export class RecipesService {
@@ -43,29 +43,29 @@ export class RecipesService {
     return this.repository.getRecipe({ where: { id } }, userId);
   }
 
+  async getRecipeSteps(id: string): Promise<RecipeStepsView> {
+    try {
+      const data = await this.repository.getRecipeSteps(id);
+
+      if (!data) {
+        throw new HttpException('Recipe steps not found', HttpStatus.NOT_FOUND);
+      }
+
+      return data;
+    } catch (error) {
+      throw new HttpException(
+        'Something went wrong during recipe steps query',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   removeRecipe(id: string): Promise<Recipe | null> {
     return this.repository.removeRecipe({ where: { id } });
   }
 
   updateRecipeRating(id: string, rating: number) {
     return this.repository.updateRecipeRating(id, rating);
-  }
-
-  createIngredient(name: string) {
-    if (name.length < 3) {
-      throw new HttpException('Name too short', HttpStatus.BAD_REQUEST);
-    }
-
-    return this.repository.createIngredient(name);
-  }
-
-  getIngredients(params: {
-    skip?: number;
-    take?: number;
-    where?: Prisma.IngredientWhereInput;
-    orderBy?: Prisma.IngredientOrderByWithRelationInput;
-  }): Promise<{ data: { name: string }[]; count: number }> {
-    return this.repository.getIngredients(params);
   }
 
   createCategory(name: string) {

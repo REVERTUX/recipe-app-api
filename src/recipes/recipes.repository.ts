@@ -2,12 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { Prisma, Recipe } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateRecipeDto } from './dto/create-recipe.dto';
+import { PrismaMongoService } from 'src/prisma/prismaMongo.service';
+import { CreateRecipeDto, RecipeStepsDto } from './dto/create-recipe.dto';
 import { RecipeListView, RecipeView } from './entities/recipe.entity';
 
 @Injectable()
 export class RecipesRepository {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private mongo: PrismaMongoService,
+  ) {}
 
   async createRecipe(
     params: { data: CreateRecipeDto },
@@ -20,36 +24,35 @@ export class RecipesRepository {
         cookingTime,
         description,
         imageId,
-        ingredients,
         nutrients,
         servings,
-        steps,
         title,
+        steps,
       },
     } = params;
 
-    return this.prisma.recipe.create({
-      data: {
-        userId,
-        calories,
-        description,
-        imageId,
-        servings,
-        title,
-        categories: {
-          createMany: {
-            data: categories.map(({ categoryName }) => ({ categoryName })),
+    return await this.prisma.$transaction(async (tx) => {
+      const recipe = await tx.recipe.create({
+        data: {
+          userId,
+          calories,
+          description,
+          imageId,
+          servings,
+          title,
+          categories: {
+            createMany: {
+              data: categories.map(({ categoryName }) => ({ categoryName })),
+            },
           },
+          cookingTime: { create: { ...cookingTime } },
+          nutrients: { create: { ...nutrients } },
         },
-        cookingTime: { create: { ...cookingTime } },
-        nutrients: { create: { ...nutrients } },
-        ingredients: { createMany: { data: ingredients } },
-        steps: {
-          createMany: {
-            data: steps.map(({ step }, index) => ({ step, order: index })),
-          },
-        },
-      },
+      });
+
+      await this.createRecipeSteps(steps, recipe.id);
+
+      return recipe;
     });
   }
 
@@ -119,16 +122,6 @@ export class RecipesRepository {
         },
         nutrients: { select: { carbs: true, fat: true, protein: true } },
         cookingTime: { select: { unit: true, value: true } },
-        steps: { select: { id: true, step: true }, orderBy: { order: 'desc' } },
-        ingredients: {
-          select: {
-            id: true,
-            amount: true,
-            ingredientUnitName: true,
-            ingredientName: true,
-            description: true,
-          },
-        },
       },
     });
 
@@ -137,6 +130,14 @@ export class RecipesRepository {
     const recipeWithAdditionalData = { ...recipe, favorite: isFavorite };
 
     return recipeWithAdditionalData;
+  }
+
+  async getRecipeSteps(id: string) {
+    return this.mongo.recipeSteps.findFirst({
+      where: { recipeId: id },
+      orderBy: { createdAt: 'desc' },
+      select: { blocks: true },
+    });
   }
 
   async removeRecipe(params: {
@@ -148,29 +149,6 @@ export class RecipesRepository {
 
   async updateRecipeRating(id: string, rating: number) {
     return this.prisma.recipe.update({ data: { rating }, where: { id } });
-  }
-
-  async getIngredients(params: {
-    skip?: number;
-    take?: number;
-    where?: Prisma.IngredientWhereInput;
-    orderBy?: Prisma.IngredientOrderByWithRelationInput;
-  }): Promise<{ data: { name: string }[]; count: number }> {
-    const { orderBy, skip, take, where } = params;
-    const data = await this.prisma.ingredient.findMany({
-      skip,
-      take,
-      where,
-      orderBy,
-      select: { name: true },
-    });
-    const count = await this.prisma.ingredient.count({ where });
-
-    return { data, count };
-  }
-
-  async createIngredient(name: string) {
-    return this.prisma.ingredient.create({ data: { name } });
   }
 
   async getCategories(params: {
@@ -187,7 +165,7 @@ export class RecipesRepository {
       orderBy,
       select: { name: true },
     });
-    const count = await this.prisma.ingredient.count({ where });
+    const count = await this.prisma.category.count({ where });
 
     return { data, count };
   }
@@ -240,5 +218,15 @@ export class RecipesRepository {
       },
     });
     return !!data;
+  }
+
+  private createRecipeSteps(recipeSteps: RecipeStepsDto, recipeId: string) {
+    return this.mongo.recipeSteps.create({
+      data: {
+        recipeId,
+        blocks: recipeSteps.blocks,
+        version: recipeSteps.version,
+      },
+    });
   }
 }

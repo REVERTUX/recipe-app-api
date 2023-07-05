@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client';
+import { Prisma as PrismaMongo } from '@prismany/client/mongo';
 
 const recipeListView = Prisma.validator<Prisma.RecipeArgs>()({
   include: {
@@ -32,17 +33,17 @@ const recipeView = Prisma.validator<Prisma.RecipeArgs>()({
     },
     nutrients: { select: { carbs: true, fat: true, protein: true } },
     cookingTime: { select: { unit: true, value: true } },
-    steps: { select: { id: true, step: true } },
-    ingredients: {
-      select: {
-        id: true,
-        amount: true,
-        ingredientUnitName: true,
-        ingredientName: true,
-        description: true,
-      },
-    },
   },
 });
 
 export type RecipeView = Prisma.RecipeGetPayload<typeof recipeView>;
+
+const recipeSteps = Prisma.validator<PrismaMongo.RecipeStepsArgs>()({
+  select: {
+    blocks: true,
+  },
+});
+
+export type RecipeStepsView = PrismaMongo.RecipeStepsGetPayload<
+  typeof recipeSteps
+>;

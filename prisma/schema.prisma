@@ -23,8 +23,6 @@ model Recipe {
   image        File?              @relation(fields: [imageId], references: [id])
   user         User               @relation(fields: [userId], references: [id])
   categories   RecipeCategory[]
-  ingredients  RecipeIngredient[]
-  steps        RecipeStep[]
   reviews      Review[]
 }
 
@@ -46,16 +44,6 @@ model CookingTime {
   recipe   Recipe @relation(fields: [recipeId], references: [id])
 }
 
-model Ingredient {
-  name             String             @id
-  RecipeIngredient RecipeIngredient[]
-}
-
-model IngredientUnit {
-  name             String             @id
-  RecipeIngredient RecipeIngredient[]
-}
-
 model Category {
   name           String           @id
   RecipeCategory RecipeCategory[]
@@ -69,18 +57,6 @@ model RecipeCategory {
   recipe       Recipe   @relation(fields: [recipeId], references: [id])
 }
 
-model RecipeIngredient {
-  id                 String         @id @default(uuid())
-  amount             Float
-  recipeId           String
-  ingredientUnitName String
-  ingredientName     String
-  description        String?
-  ingredient         Ingredient     @relation(fields: [ingredientName], references: [name])
-  unit               IngredientUnit @relation(fields: [ingredientUnitName], references: [name])
-  recipe             Recipe         @relation(fields: [recipeId], references: [id])
-}
-
 model Nutrients {
   id       String @id @default(uuid())
   fat      Float
@@ -88,16 +64,6 @@ model Nutrients {
   carbs    Float
   recipeId String @unique
   recipe   Recipe @relation(fields: [recipeId], references: [id])
-}
-
-model RecipeStep {
-  id       String @id @default(uuid())
-  step     String
-  order    Int
-  recipeId String
-  Recipe   Recipe @relation(fields: [recipeId], references: [id])
-
-  @@unique([recipeId, order])
 }
 
 model Favorite {
