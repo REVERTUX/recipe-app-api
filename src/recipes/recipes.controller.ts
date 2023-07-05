@@ -14,7 +14,6 @@ import { Prisma } from '@prisma/client';
 
 import { RecipesService } from './recipes.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
-import { CreateIngredientDto } from './dto/create-ingredient.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
 import RequestWithUser from 'src/authentication/requestWithUser.interface';
@@ -24,24 +23,6 @@ import { UpdateRecipeFavoriteDto } from './dto/update-recipe-favorite.dto';
 @Controller('recipes')
 export class RecipesController {
   constructor(private readonly recipesService: RecipesService) {}
-
-  @Get('ingredients')
-  getIngredients(@Query('search') search?: string) {
-    const where = search
-      ? {
-          name: { contains: search },
-        }
-      : {};
-    return this.recipesService.getIngredients({
-      where,
-    });
-  }
-
-  @Post('ingredients')
-  @UseGuards(JwtAuthenticationGuard)
-  createIngredient(@Body() ingredient: CreateIngredientDto) {
-    return this.recipesService.createIngredient(ingredient.name);
-  }
 
   @Get('categories')
   getCategories(@Query('search') search?: string) {
@@ -130,6 +111,11 @@ export class RecipesController {
   getRecipe(@Req() request: RequestWithUser, @Param('id') recipeId: string) {
     const userId = request?.user?.id;
     return this.recipesService.getRecipe(recipeId, userId);
+  }
+
+  @Get(':id/steps')
+  getRecipeSteps(@Param('id') recipeId: string) {
+    return this.recipesService.getRecipeSteps(recipeId);
   }
 
   // @Patch(':id')

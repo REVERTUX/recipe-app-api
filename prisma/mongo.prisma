@@ -1,0 +1,18 @@
+generator client {
+    output   = "../node_modules/@prismany/client/mongo"
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mongodb"
+    url      = "mongodb://root:prisma@localhost:27017/recipes?authSource=admin" // somehow can't read .env file
+}
+
+
+model RecipeSteps {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    recipeId  String
+    createdAt DateTime @default(now())
+    blocks    Json
+    version   String
+}
