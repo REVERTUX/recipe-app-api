@@ -40,7 +40,7 @@ $ npx prisma migrate dev --create-only
 
 ## Update types 
 ```bash
-$ npx prismany db push
+$ npx prismany push
 $ npx prismany generate
 ```
 
