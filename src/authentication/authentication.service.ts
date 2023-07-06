@@ -58,9 +58,9 @@ export class AuthenticationService {
     const payload: TokenPayload = { userId };
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
-      expiresIn: `${this.configService.get(
-        'JWT_REFRESH_TOKEN_EXPIRATION_TIME' ?? 2592000,
-      )}s`,
+      expiresIn: `${
+        this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME') ?? 2592000
+      }s`,
     });
     const cookie = `Refresh=${token}; HttpOnly; Path=/; Max-Age=${
       this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME') ?? 2592000
