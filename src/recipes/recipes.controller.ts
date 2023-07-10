@@ -13,12 +13,13 @@ import {
 import { Prisma } from '@prisma/client';
 
 import { RecipesService } from './recipes.service';
-import { CreateRecipeDto } from './dto/create-recipe.dto';
+import { CreateRecipeDto, RecipeStepsDto } from './dto/create-recipe.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
 import RequestWithUser from 'src/authentication/requestWithUser.interface';
 import JwtAllowAllGuard from 'src/authentication/jwt-all.guard';
 import { UpdateRecipeFavoriteDto } from './dto/update-recipe-favorite.dto';
+import { UpdateRecipeDto } from './dto/update-recipe.dto';
 
 @Controller('recipes')
 export class RecipesController {
@@ -113,18 +114,34 @@ export class RecipesController {
     return this.recipesService.getRecipe(recipeId, userId);
   }
 
+  @Put(':id')
+  @UseGuards(JwtAuthenticationGuard)
+  updateRecipe(
+    @Req() request: RequestWithUser,
+    @Param('id') recipeId: string,
+    @Body() recipe: UpdateRecipeDto,
+  ) {
+    return this.recipesService.updateRecipe(recipe, recipeId, request.user.id);
+  }
+
   @Get(':id/steps')
   getRecipeSteps(@Param('id') recipeId: string) {
     return this.recipesService.getRecipeSteps(recipeId);
   }
 
-  // @Patch(':id')
-  // updateRecipe(
-  //   @Param('id') id: string,
-  //   @Body() recipe: Prisma.RecipeUpdateInput,
-  // ) {
-  //   return this.recipesService.updateRecipe(id, recipe);
-  // }
+  @Put(':id/steps')
+  @UseGuards(JwtAuthenticationGuard)
+  updateRecipeSteps(
+    @Req() request: RequestWithUser,
+    @Param('id') recipeId: string,
+    @Body() steps: RecipeStepsDto,
+  ) {
+    return this.recipesService.updateRecipeSteps(
+      steps,
+      recipeId,
+      request.user.id,
+    );
+  }
 
   @Put(':id/favorite')
   @UseGuards(JwtAuthenticationGuard)

@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsNotEmpty,
   IsString,
@@ -5,7 +6,7 @@ import {
   ValidateNested,
   IsUUID,
   IsOptional,
-  IsJSON,
+  IsArray,
 } from 'class-validator';
 
 export class CookingTimeDto {
@@ -68,6 +69,7 @@ export class RecipeIngredientDto {
 
 export class RecipeCategoryDto {
   @IsString()
+  @Transform(({ value }) => value?.trim())
   @IsNotEmpty()
   categoryName: string;
 
@@ -80,7 +82,7 @@ export class RecipeStepsDto {
   @IsNotEmpty()
   version: string;
 
-  @IsJSON()
+  @IsArray()
   blocks: object[];
 }
 
