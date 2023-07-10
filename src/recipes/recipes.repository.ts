@@ -3,7 +3,12 @@ import { Prisma, Recipe } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PrismaMongoService } from 'src/prisma/prismaMongo.service';
-import { CreateRecipeDto, RecipeStepsDto } from './dto/create-recipe.dto';
+import {
+  CreateRecipeDto,
+  RecipeCategoryDto,
+  RecipeStepsDto,
+} from './dto/create-recipe.dto';
+import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { RecipeListView, RecipeView } from './entities/recipe.entity';
 
 @Injectable()
@@ -53,6 +58,38 @@ export class RecipesRepository {
       await this.createRecipeSteps(steps, recipe.id);
 
       return recipe;
+    });
+  }
+
+  async updateRecipe(recipe: UpdateRecipeDto, recipeId: string) {
+    const {
+      calories,
+      categories,
+      cookingTime,
+      description,
+      imageId,
+      nutrients,
+      servings,
+      title,
+    } = recipe;
+
+    this.prisma.$transaction(async (tx) => {
+      if (categories) {
+        this.updateRecipeCategories(recipeId, categories, tx);
+      }
+
+      await tx.recipe.update({
+        data: {
+          title,
+          calories,
+          description,
+          imageId,
+          servings,
+          cookingTime: { update: { ...cookingTime } },
+          nutrients: { update: { ...nutrients } },
+        },
+        where: { id: recipeId },
+      });
     });
   }
 
@@ -188,6 +225,23 @@ export class RecipesRepository {
     }
   }
 
+  getRecipeUserId(recipeId: string) {
+    return this.prisma.recipe.findFirst({
+      where: { id: recipeId },
+      select: { userId: true },
+    });
+  }
+
+  createRecipeSteps(recipeSteps: RecipeStepsDto, recipeId: string) {
+    return this.mongo.recipeSteps.create({
+      data: {
+        recipeId,
+        blocks: recipeSteps.blocks,
+        version: recipeSteps.version,
+      },
+    });
+  }
+
   private async getFavoriteRecipesIds(
     recipesId: string[],
     userId?: string,
@@ -220,13 +274,49 @@ export class RecipesRepository {
     return !!data;
   }
 
-  private createRecipeSteps(recipeSteps: RecipeStepsDto, recipeId: string) {
-    return this.mongo.recipeSteps.create({
-      data: {
-        recipeId,
-        blocks: recipeSteps.blocks,
-        version: recipeSteps.version,
-      },
+  private async updateRecipeCategories(
+    recipeId: string,
+    categories: RecipeCategoryDto[],
+    tx: Omit<
+      PrismaService,
+      '$connect' | '$disconnect' | '$on' | '$transaction' | '$use'
+    >,
+  ) {
+    const existingCategories = await tx.recipeCategory.findMany({
+      where: { recipeId },
+      select: { categoryName: true, id: true },
     });
+
+    const existingSharedCategories = existingCategories.filter(
+      ({ categoryName }) =>
+        categories.some((category) => category.categoryName === categoryName),
+    );
+
+    const categoriesToAdd = categories.filter(
+      ({ categoryName }) =>
+        !existingCategories.some(
+          (category) => category.categoryName === categoryName,
+        ),
+    );
+
+    const categoriesToDelete = existingCategories.filter(
+      (existingCategory) =>
+        !existingSharedCategories.some(
+          (category) => existingCategory.categoryName === category.categoryName,
+        ),
+    );
+
+    const deleteCategories = tx.recipeCategory.deleteMany({
+      where: { id: { in: categoriesToDelete.map(({ id }) => id) } },
+    });
+
+    const createCategories = tx.recipeCategory.createMany({
+      data: categoriesToAdd.map(({ categoryName }) => ({
+        categoryName,
+        recipeId,
+      })),
+    });
+
+    return this.prisma.$transaction([deleteCategories, createCategories]);
   }
 }
