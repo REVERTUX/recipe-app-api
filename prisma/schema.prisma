@@ -24,6 +24,9 @@ model Recipe {
   user         User               @relation(fields: [userId], references: [id])
   categories   RecipeCategory[]
   reviews      Review[]
+
+  @@index([id])
+  @@index([title, description])
 }
 
 model Review {
@@ -35,6 +38,8 @@ model Review {
   userId       String
   recipe       Recipe   @relation(fields: [recipeId], references: [id])
   user         User     @relation(fields: [userId], references: [id])
+
+  @@index([id])
 }
 
 model CookingTime {
@@ -55,6 +60,8 @@ model RecipeCategory {
   categoryName String
   category     Category @relation(fields: [categoryName], references: [name])
   recipe       Recipe   @relation(fields: [recipeId], references: [id])
+
+  @@index([recipeId])
 }
 
 model Nutrients {
@@ -64,6 +71,8 @@ model Nutrients {
   carbs    Float
   recipeId String @unique
   recipe   Recipe @relation(fields: [recipeId], references: [id])
+
+  @@index([recipeId])
 }
 
 model Favorite {
@@ -73,6 +82,7 @@ model Favorite {
   User     User   @relation(fields: [userId], references: [id])
 
   @@unique([recipeId, userId])
+  @@index([recipeId, userId])
 }
 
 model File {
@@ -81,6 +91,8 @@ model File {
   path     String
   mimetype String
   Recipe   Recipe[]
+
+  @@index([id])
 }
 
 model User {
@@ -93,4 +105,7 @@ model User {
   Favorite                  Favorite[]
   Recipe                    Recipe[]
   Review                    Review[]
+
+  @@index([id])
+  @@index([email])
 }
