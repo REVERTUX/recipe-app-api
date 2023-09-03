@@ -20,6 +20,7 @@ import RequestWithUser from 'src/authentication/requestWithUser.interface';
 import JwtAllowAllGuard from 'src/authentication/jwt-all.guard';
 import { UpdateRecipeFavoriteDto } from './dto/update-recipe-favorite.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('recipes')
 export class RecipesController {
@@ -87,6 +88,7 @@ export class RecipesController {
     @Query('take') take?: number,
     @Query('skip') skip?: number,
   ) {
+    console.log(request.user);
     const userId = request.user.id;
     const where: Prisma.RecipeWhereInput = {};
     if (search) {

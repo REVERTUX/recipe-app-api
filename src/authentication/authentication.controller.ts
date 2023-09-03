@@ -46,7 +46,6 @@ export class AuthenticationController {
     return response.send({ name: user.name, email: user.email });
   }
 
-  @UseGuards(JwtAuthenticationGuard)
   @Post('log-out')
   @HttpCode(200)
   async logOut(@Req() request: RequestWithUser) {
@@ -57,7 +56,6 @@ export class AuthenticationController {
     );
   }
 
-  @UseGuards(JwtAuthenticationGuard)
   @Get()
   authenticate(@Req() request: RequestWithUser) {
     const { name, email } = request.user;

@@ -7,6 +7,7 @@ import { RecipesModule } from './recipes/recipes.module';
 import { FilesModule } from './files/files.module';
 import { UsersModule } from './users/users.module';
 import { AuthenticationModule } from './authentication/authentication.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AuthenticationModule } from './authentication/authentication.module';
     FilesModule,
     UsersModule,
     AuthenticationModule,
+    ConfigModule,
   ],
   controllers: [AppController],
   providers: [AppService],

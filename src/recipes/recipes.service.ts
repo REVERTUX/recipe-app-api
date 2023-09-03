@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Prisma, Recipe } from '@prisma/client';
 
 import { CreateRecipeDto, RecipeStepsDto } from './dto/create-recipe.dto';
@@ -33,11 +39,13 @@ export class RecipesService {
     recipeId: string,
     userId: string,
   ) {
-    const isOwner = await this.checkUserRecipeOwnership(recipeId, userId)
+    const isOwner = await this.checkUserRecipeOwnership(recipeId, userId);
 
-    if(!isOwner) {
-        this.logger.error(`User ${userId} has no right to update recipe ${recipeId}`)
-        throw new UnauthorizedException(`User has no right to modify recipe`)
+    if (!isOwner) {
+      this.logger.error(
+        `User ${userId} has no right to update recipe ${recipeId}`,
+      );
+      throw new UnauthorizedException(`User has no right to modify recipe`);
     }
 
     this.logger.log(`Updating recipe with id ${recipeId} and user ${userId}`);
@@ -71,11 +79,15 @@ export class RecipesService {
     recipeId: string,
     userId: string,
   ) {
-    const isOwner = await this.checkUserRecipeOwnership(recipeId, userId)
+    const isOwner = await this.checkUserRecipeOwnership(recipeId, userId);
 
-    if(!isOwner) {
-        this.logger.error(`User ${userId} has no right to update recipe steps ${recipeId}`)
-        throw new UnauthorizedException(`User has no right to modify recipe steps`)
+    if (!isOwner) {
+      this.logger.error(
+        `User ${userId} has no right to update recipe steps ${recipeId}`,
+      );
+      throw new UnauthorizedException(
+        `User has no right to modify recipe steps`,
+      );
     }
 
     this.logger.log(`Creating recipe steps for ${recipeId} and user ${userId}`);

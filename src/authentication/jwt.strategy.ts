@@ -2,28 +2,34 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Request } from 'express';
-import { UsersService } from '../users/users.service';
-import { TokenPayload } from './tokenPayload.interface';
+import { passportJwtSecret } from 'jwks-rsa';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly userService: UsersService,
-  ) {
+  constructor(private readonly configService: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: Request) => {
-          return request?.cookies?.Authentication;
-        },
-      ]),
-      secretOrKey: configService.get('JWT_ACCESS_TOKEN_SECRET'),
-      ignoreExpiration: false,
+      secretOrKeyProvider: passportJwtSecret({
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+        jwksUri: `https://cognito-idp.${configService.get(
+          'AWS_REGION',
+        )}.amazonaws.com/${configService.get(
+          'AWS_USER_POOL_ID',
+        )}/.well-known/jwks.json`,
+      }),
+
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      audience: configService.get('AWS_USER_POOL_ID'),
+      issuer: `https://cognito-idp.${configService.get(
+        'AWS_REGION',
+      )}.amazonaws.com/${configService.get('AWS_USER_POOL_APP_CLIENT_ID')}`,
+      algorithms: ['RS256'],
     });
   }
 
-  async validate(payload: TokenPayload) {
-    return this.userService.getUserById(payload.userId);
+  public async validate(payload: any) {
+    console.log('aaaaaaaa');
+    return !!payload.email;
   }
 }

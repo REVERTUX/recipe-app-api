@@ -11,21 +11,24 @@ import { UsersModule } from '../users/users.module';
 import { AuthenticationController } from './authentication.controller';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { JwtAllowAllStrategy } from './jwt-allow-all.strategy';
+import { Jwt0Strategy } from './jwt0.strategy';
+import { JwtCognitoService } from './jwtCognito.service';
 
 @Module({
   imports: [
     UsersModule,
-    PassportModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     ConfigModule,
     PrismaModule,
     JwtModule.register({}),
   ],
   providers: [
     AuthenticationService,
-    LocalStrategy,
+    // LocalStrategy,
     JwtStrategy,
-    JwtRefreshTokenStrategy,
-    JwtAllowAllStrategy,
+    // JwtRefreshTokenStrategy,
+    // JwtAllowAllStrategy,
+    // Jwt0Strategy,
   ],
   controllers: [AuthenticationController],
 })
