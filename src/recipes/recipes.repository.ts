@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Prisma, Recipe } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PrismaMongoService } from 'src/prisma/prismaMongo.service';
 import {
   CreateRecipeDto,
   RecipeCategoryDto,
@@ -10,12 +9,16 @@ import {
 } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { RecipeListView, RecipeView } from './entities/recipe.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Recipe as MongoRecipe } from './dto/recipe.shema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class RecipesRepository {
   constructor(
     private prisma: PrismaService,
-    private mongo: PrismaMongoService,
+    @InjectModel(MongoRecipe.name)
+    private readonly recipeModel: Model<MongoRecipe>,
   ) {}
 
   async createRecipe(
@@ -170,11 +173,12 @@ export class RecipesRepository {
   }
 
   async getRecipeSteps(id: string) {
-    return this.mongo.recipeSteps.findFirst({
-      where: { recipeId: id },
-      orderBy: { createdAt: 'desc' },
-      select: { blocks: true },
-    });
+    const data = await this.recipeModel.findOne({ id });
+    if (!data) {
+      return null;
+    }
+
+    return { blocks: data.blocks };
   }
 
   async removeRecipe(params: {
@@ -233,12 +237,11 @@ export class RecipesRepository {
   }
 
   createRecipeSteps(recipeSteps: RecipeStepsDto, recipeId: string) {
-    return this.mongo.recipeSteps.create({
-      data: {
-        recipeId,
-        blocks: recipeSteps.blocks,
-        version: recipeSteps.version,
-      },
+    return this.recipeModel.create({
+      recipeId,
+      blocks: recipeSteps.blocks,
+      version: recipeSteps.version,
+      createdAt: new Date(),
     });
   }
 
