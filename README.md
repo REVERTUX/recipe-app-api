@@ -50,9 +50,6 @@ JWT_REFRESH_TOKEN_EXPIRATION_TIME="2592000"
 ## Running the app
 
 ```bash seed
-# generate types for prisma
-$ npx prismany push
-$ npx prismany generate
 
 # development
 $ npm run start
@@ -76,8 +73,8 @@ $ npx prisma migrate dev --create-only
 
 ## Update prisma types 
 ```bash
-$ npx prismany push
-$ npx prismany generate
+$ npx prisma push
+$ npx prisma generate
 ```
 
 ## Set sample data

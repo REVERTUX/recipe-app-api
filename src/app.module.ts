@@ -7,6 +7,7 @@ import { RecipesModule } from './recipes/recipes.module';
 import { FilesModule } from './files/files.module';
 import { UsersModule } from './users/users.module';
 import { AuthenticationModule } from './authentication/authentication.module';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
@@ -16,6 +17,9 @@ import { AuthenticationModule } from './authentication/authentication.module';
     FilesModule,
     UsersModule,
     AuthenticationModule,
+    MongooseModule.forRoot(
+      process.env.MONGODB_URL ?? 'mongodb://localhost:27017/recipe',
+    ),
   ],
   controllers: [AppController],
   providers: [AppService],
