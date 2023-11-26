@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RecipesService } from './recipes.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { RecipesRepository } from './recipes.repository';
-import { PrismaMongoModule } from 'src/prisma/prismaMongo.module';
+import { MongooseModule } from '@nestjs/mongoose';
 
 describe('RecipesService', () => {
   let service: RecipesService;
@@ -12,7 +12,7 @@ describe('RecipesService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [RecipesService, RecipesRepository],
-      imports: [PrismaModule, PrismaMongoModule],
+      imports: [PrismaModule, MongooseModule],
     }).compile();
 
     service = module.get<RecipesService>(RecipesService);
