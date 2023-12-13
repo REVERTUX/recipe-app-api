@@ -36,7 +36,3 @@ const recipeView = Prisma.validator<Prisma.RecipeArgs>()({
 });
 
 export type RecipeView = Prisma.RecipeGetPayload<typeof recipeView>;
-
-export type RecipeStepsView = {
-  blocks: JSON;
-};

@@ -2,11 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma, Recipe } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma/prisma.service';
-import {
-  CreateRecipeDto,
-  RecipeCategoryDto,
-  RecipeStepsDto,
-} from './dto/create-recipe.dto';
+import { CreateRecipeDto, RecipeCategoryDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { RecipeListView, RecipeView } from './entities/recipe.entity';
 import { InjectModel } from '@nestjs/mongoose';
@@ -178,7 +174,7 @@ export class RecipesRepository {
       return null;
     }
 
-    return { blocks: data.blocks };
+    return { steps: data.steps };
   }
 
   async removeRecipe(params: {
@@ -236,11 +232,10 @@ export class RecipesRepository {
     });
   }
 
-  createRecipeSteps(recipeSteps: RecipeStepsDto, recipeId: string) {
+  createRecipeSteps(recipeSteps: string, recipeId: string) {
     return this.recipeModel.create({
       recipeId,
-      blocks: recipeSteps.blocks,
-      version: recipeSteps.version,
+      steps: recipeSteps,
       createdAt: new Date(),
     });
   }

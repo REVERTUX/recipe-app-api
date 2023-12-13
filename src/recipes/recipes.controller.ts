@@ -13,7 +13,7 @@ import {
 import { Prisma } from '@prisma/client';
 
 import { RecipesService } from './recipes.service';
-import { CreateRecipeDto, RecipeStepsDto } from './dto/create-recipe.dto';
+import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
 import RequestWithUser from 'src/authentication/requestWithUser.interface';
@@ -134,7 +134,7 @@ export class RecipesController {
   updateRecipeSteps(
     @Req() request: RequestWithUser,
     @Param('id') recipeId: string,
-    @Body() steps: RecipeStepsDto,
+    @Body() steps: string,
   ) {
     return this.recipesService.updateRecipeSteps(
       steps,

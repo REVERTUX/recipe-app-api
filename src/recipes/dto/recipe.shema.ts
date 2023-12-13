@@ -14,11 +14,8 @@ export class Recipe {
   @Prop({ required: true, type: Date })
   createdAt: Date;
 
-  @Prop({ required: true, type: JSON })
-  blocks: JSON;
-
   @Prop({ required: true })
-  version: number;
+  steps: string;
 }
 
 export const RecipeSchema = SchemaFactory.createForClass(Recipe);

@@ -7,9 +7,9 @@ import {
 } from '@nestjs/common';
 import { Prisma, Recipe } from '@prisma/client';
 
-import { CreateRecipeDto, RecipeStepsDto } from './dto/create-recipe.dto';
+import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { RecipesRepository } from './recipes.repository';
-import { RecipeListView, RecipeStepsView } from './entities/recipe.entity';
+import { RecipeListView } from './entities/recipe.entity';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { RecipeNotFoundException } from './exception/recipeNotFound';
 
@@ -74,11 +74,7 @@ export class RecipesService {
     return this.repository.getRecipe({ where: { id } }, userId);
   }
 
-  async updateRecipeSteps(
-    steps: RecipeStepsDto,
-    recipeId: string,
-    userId: string,
-  ) {
+  async updateRecipeSteps(steps: string, recipeId: string, userId: string) {
     const isOwner = await this.checkUserRecipeOwnership(recipeId, userId);
 
     if (!isOwner) {
@@ -99,7 +95,7 @@ export class RecipesService {
     return data;
   }
 
-  async getRecipeSteps(id: string): Promise<RecipeStepsView> {
+  async getRecipeSteps(id: string): Promise<string> {
     try {
       const data = await this.repository.getRecipeSteps(id);
       if (!data) {
@@ -109,7 +105,7 @@ export class RecipesService {
         );
       }
 
-      return data;
+      return data.steps;
     } catch (error) {
       this.logger.error(error);
       throw error;

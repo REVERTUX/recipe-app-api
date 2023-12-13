@@ -6,7 +6,6 @@ import {
   ValidateNested,
   IsUUID,
   IsOptional,
-  IsArray,
 } from 'class-validator';
 
 export class CookingTimeDto {
@@ -77,15 +76,6 @@ export class RecipeCategoryDto {
   recipeId: string;
 }
 
-export class RecipeStepsDto {
-  @IsString()
-  @IsNotEmpty()
-  version: string;
-
-  @IsArray()
-  blocks: object[];
-}
-
 export class CreateRecipeDto {
   @IsString()
   @IsNotEmpty()
@@ -114,6 +104,7 @@ export class CreateRecipeDto {
   @ValidateNested()
   categories: RecipeCategoryDto[];
 
-  @ValidateNested()
-  steps: RecipeStepsDto;
+  @IsString()
+  @IsNotEmpty()
+  steps: string;
 }
